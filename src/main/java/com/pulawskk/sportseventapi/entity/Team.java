@@ -1,6 +1,7 @@
 package com.pulawskk.sportseventapi.entity;
 
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,4 +33,12 @@ public class Team {
     )
     private Set<Competition> competitions = new HashSet<>();
 
+    @Builder
+    public Team(Long id, String name, Set<Competition> competitions) {
+        this.id = id;
+        this.name = name;
+        if(competitions != null) {
+            this.competitions = competitions;
+        }
+    }
 }

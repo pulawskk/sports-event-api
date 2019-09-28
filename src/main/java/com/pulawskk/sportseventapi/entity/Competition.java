@@ -1,10 +1,12 @@
 package com.pulawskk.sportseventapi.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -23,6 +25,14 @@ public class Competition {
     private String name;
 
     @ManyToMany(mappedBy = "competitions")
-    private Set<Team> teams;
+    private Set<Team> teams = new HashSet<>();
 
+    @Builder
+    public Competition(Long id, String name, Set<Team> teams) {
+        this.id = id;
+        this.name = name;
+        if(teams != null) {
+            this.teams = teams;
+        }
+    }
 }
