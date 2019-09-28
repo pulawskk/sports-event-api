@@ -108,7 +108,7 @@ class CompetitionServiceImplTest {
 
         Competition savedCompetition = competitionServiceImpl.save(competitionToBeSaved);
         
-        assertThat(savedCompetition.getName(), is(3L));
+        assertThat(savedCompetition.getId(), is(3L));
     }
 
     @Test
@@ -120,6 +120,6 @@ class CompetitionServiceImplTest {
     @Test
     void shouldDeleteCompetition_whenCompetitionWithSpecificNameExists() {
         competitionServiceImpl.delete(any());
-        verify(teamRepository,times(1)).delete(any());
+        verify(competitionRepository,times(1)).delete(any());
     }
 }
