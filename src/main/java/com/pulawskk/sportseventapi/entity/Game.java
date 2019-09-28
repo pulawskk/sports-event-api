@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -31,6 +33,12 @@ public class Game {
     @JoinColumn(name = "competition_id", referencedColumnName = "id")
     private Competition competition;
 
+    @Column(name = "start_date")
     private Calendar startDate;
+
+    @Column(name = "end_date")
     private Calendar endDate;
+
+    @OneToMany(mappedBy = "game")
+    private Set<Odd> odds = new HashSet<>();
 }
