@@ -22,4 +22,7 @@ public class Result {
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private Game game;
 
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "game_report_id", referencedColumnName = "id")
+    private GameReport gameReport;
 }
