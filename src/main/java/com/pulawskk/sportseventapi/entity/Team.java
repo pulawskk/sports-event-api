@@ -41,4 +41,11 @@ public class Team {
             this.competitions = competitions;
         }
     }
+
+    public void addCompetition(Competition competition) {
+        if(this.competitions == null) {
+            this.competitions = new HashSet<>();
+        }
+        this.competitions.add(competition);
+    }
 }

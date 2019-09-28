@@ -2,7 +2,6 @@ package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Team;
-import com.pulawskk.sportseventapi.repository.CompetitionRepository;
 import com.pulawskk.sportseventapi.repository.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,9 +74,9 @@ class TeamServiceImplTest {
 
         when(teamRepository.findAll()).thenReturn(new ArrayList<Team>(teams));
 
-        Set<Team> teams = new HashSet<Team>(teamServiceImpl.findAll());
+        Set<Team> teamsFromDb = new HashSet<Team>(teamServiceImpl.findAll());
 
-        assertThat(teams, hasSize(2));
+        assertThat(teamsFromDb, hasSize(2));
     }
 
     @Test
@@ -88,13 +87,13 @@ class TeamServiceImplTest {
 
         when(teamRepository.findAllByCompetitions(premierLeagueCompetition)).thenReturn(new ArrayList<Team>(teams));
 
-        Set<Team> teams = new HashSet<Team>(teamServiceImpl.findAllByCompetitions(premierLeagueCompetition));
+        Set<Team> teamsFromDb = new HashSet<Team>(teamServiceImpl.findAllByCompetitions(premierLeagueCompetition));
 
-        assertThat(teams, hasSize(2));
+        assertThat(teamsFromDb, hasSize(2));
     }
 
     @Test
-    void shouldReturnSaveTeam_whenTeamIsSaved() {
+    void shouldReturnSavedTeam_whenTeamIsSaved() {
         Team teamToBeSaved = Team.builder().id(3L).name("Aston Villa").competitions(competitions).build();
 
         when(teamRepository.save(any())).thenReturn(teamToBeSaved);
