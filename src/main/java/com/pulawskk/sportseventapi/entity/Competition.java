@@ -35,4 +35,11 @@ public class Competition {
             this.teams = teams;
         }
     }
+
+    public void addNewTeam(Team newTeam) {
+        if(this.teams == null) {
+            this.teams = new HashSet<>();
+        }
+        this.teams.add(newTeam);
+    }
 }

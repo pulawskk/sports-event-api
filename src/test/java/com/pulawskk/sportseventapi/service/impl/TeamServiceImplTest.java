@@ -6,15 +6,20 @@ import com.pulawskk.sportseventapi.repository.CompetitionRepository;
 import com.pulawskk.sportseventapi.repository.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
-//@ExtendWith(MockitoExtension.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 class TeamServiceImplTest {
 
     @Mock
@@ -25,22 +30,116 @@ class TeamServiceImplTest {
 
     private TeamServiceImpl teamServiceImpl;
 
+    private Team teamChelsea;
+    private Competition premierLeagueCompetition;
+    private Set<Competition> competitions = new HashSet<>();
+    private Set<Team> teams = new HashSet<>();
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        Team teamChelsea = Team.builder().id(1L).name("Chelsea").build();
-        Competition premierLeagueCompetition = Competition.builder().id(1L).name("Premier League").build();
-        Set<Competition> competitions = new HashSet<>();
+        teamChelsea = Team.builder().id(1L).name("Chelsea").build();
+        premierLeagueCompetition = Competition.builder().id(1L).name("Premier League").build();
+
         competitions.add(premierLeagueCompetition);
         teamChelsea.setCompetitions(competitions);
-        Set<Team> teams = new HashSet<>();
+
         teams.add(teamChelsea);
         premierLeagueCompetition.setTeams(teams);
+
+        teamServiceImpl = new TeamServiceImpl(teamRepository);
     }
 
     @Test
-    void getTeamById() {
+    void shouldReturnTeam_whenTeamWithSpecificIdExist() {
+        Optional<Team> optionalChelseaTeam = Optional.of(teamChelsea);
+        when(teamRepository.findById(anyLong())).thenReturn(optionalChelseaTeam);
 
+        Team newTeam = teamServiceImpl.findById(1L);
+
+        assertThat(newTeam.getId(), is(1L));
+        assertThat(newTeam.getName(), is("Chelsea"));
     }
 
+    @Test
+    void shouldReturnNull_whenTeamWithSpecificIdDoesNotExist() {
+        when(teamRepository.findById(anyLong())).thenReturn(null);
+        verify(teamRepository, times(1)).findById(anyLong());
+    }
+
+    @Test
+    void shouldReturnTeam_whenTeamWithSpecificNameExists() {
+        when(teamRepository.findByName(anyString())).thenReturn(teamChelsea);
+
+        Team newTeam = teamServiceImpl.findByName("Chelsea");
+
+        assertThat(newTeam.getName(), is("Chelsea"));
+        assertThat(newTeam.getId(), is(1L));
+    }
+
+    @Test
+    void shouldReturnNull_whenTeamWithSpecificNameDoesNotExist() {
+        when(teamRepository.findByName(anyString())).thenReturn(null);
+        verify(teamRepository, times(1)).findByName(anyString());
+    }
+
+    @Test
+    void shouldReturnAllTeams_whenTeamsExist() {
+        Team arsenalTeam = Team.builder().id(2L).name("Arsenal").competitions(competitions).build();
+        premierLeagueCompetition.addNewTeam(arsenalTeam);
+        teams.add(arsenalTeam);
+
+        when(teamRepository.findAll()).thenReturn(new ArrayList<Team>(teams));
+
+        Set<Team> teams = new HashSet<Team>(teamServiceImpl.findAll());
+
+        assertThat(teams, hasSize(2));
+    }
+
+    @Test
+    void shouldReturnNull_whenAnyTeamDoesNotExist() {
+        when(teamRepository.findAll()).thenReturn(null);
+        verify(teamRepository, times(1)).findAll();
+    }
+
+    @Test
+    void shouldReturnSetOfTeams_whenSpecificCompetitionExists() {
+        Team arsenalTeam = Team.builder().id(2L).name("Arsenal").competitions(competitions).build();
+        premierLeagueCompetition.addNewTeam(arsenalTeam);
+        teams.add(arsenalTeam);
+
+        when(teamRepository.findAllByCompetitions(premierLeagueCompetition)).thenReturn(new ArrayList<Team>(teams));
+
+        Set<Team> teams = new HashSet<Team>(teamServiceImpl.findAllByCompetitions(premierLeagueCompetition));
+
+        assertThat(teams, hasSize(2));
+    }
+
+    @Test
+    void shouldReturnNull_whenSpecificCompetitionDoesNotExist() {
+        when(teamRepository.findAllByCompetitions(Competition.builder().build())).thenReturn(null);
+        verify(teamRepository, times(1)).findAllByCompetitions(premierLeagueCompetition);
+    }
+
+    @Test
+    void shouldReturnSaveTeam_whenTeamIsSaved() {
+        Team teamToBeSaved = Team.builder().id(3L).name("Aston Villa").competitions(competitions).build();
+
+        when(teamRepository.save(any())).thenReturn(teamToBeSaved);
+
+        Team savedTeam = teamServiceImpl.save(teamToBeSaved);
+
+        assertThat(savedTeam.getId(), isNotNull());
+        assertThat(savedTeam.getId(), is(3L));
+    }
+
+    @Test
+    void shouldDeleteTeam_whenTeamWithSpecificIdExists() {
+        verify(teamRepository, times(1)).deleteById(anyLong());
+    }
+
+    @Test
+    void shouldDeleteTeam_whenTeamWithSpecificNameExists() {
+        verify(teamRepository,times(1)).delete(any());
+    }
 }

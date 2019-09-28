@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class CompetitionServiceImpl implements CompetitionService {
 
-//    private final CompetitionRepository competitionRepository;
-//
-//    public CompetitionServiceImpl(CompetitionRepository competitionRepository) {
-//        this.competitionRepository = competitionRepository;
-//    }
+    private final CompetitionRepository competitionRepository;
+
+    public CompetitionServiceImpl(CompetitionRepository competitionRepository) {
+        this.competitionRepository = competitionRepository;
+    }
 }
