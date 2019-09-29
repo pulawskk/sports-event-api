@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,4 +46,20 @@ public class GameReportFootball extends GameReport{
 
     @Column(name = "r_card_away")
     private int rCardAway;
+
+    @Builder
+    public GameReportFootball(Long id, int goalHome, int goalAway, int offsideHome, int offsideAway, int cornerHome, int cornerAway, int yCardHome, int yCardAway, int rCardHome, int rCardAway) {
+        super(id);
+        this.goalHome = goalHome;
+        this.goalAway = goalAway;
+        this.offsideHome = offsideHome;
+        this.offsideAway = offsideAway;
+        this.cornerHome = cornerHome;
+        this.cornerAway = cornerAway;
+        this.yCardHome = yCardHome;
+        this.yCardAway = yCardAway;
+        this.rCardHome = rCardHome;
+        this.rCardAway = rCardAway;
+    }
+
 }
