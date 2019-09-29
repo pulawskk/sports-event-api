@@ -27,7 +27,7 @@ class GameReportFootballServiceTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        gameReportFootballService = new GameReportFootballService();
+        gameReportFootballService = new GameReportFootballService(gameReportFootballRepository);
 
         gameReportFootball = GameReportFootball.builder()
                 .id(1L)
@@ -59,7 +59,7 @@ class GameReportFootballServiceTest {
     void shouldReturnSavedGameReportFootball_whenGameReportFootballIsSaved() {
         when(gameReportFootballRepository.save(any())).thenReturn(gameReportFootball);
 
-        GameReportFootball savedReportFootball = gameReportFootballService.save(1L);
+        GameReportFootball savedReportFootball = gameReportFootballService.save(gameReportFootball);
 
         assertThat(savedReportFootball.getId(), is(1L));
         assertThat(savedReportFootball.getCornerAway(), is(1));
