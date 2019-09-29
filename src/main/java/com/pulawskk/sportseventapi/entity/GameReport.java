@@ -9,12 +9,12 @@ import javax.persistence.*;
 @Setter
 @Getter
 @NoArgsConstructor
-
-@Entity
-@Table(name="game_reports")
+@MappedSuperclass
 public class GameReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+
 }
