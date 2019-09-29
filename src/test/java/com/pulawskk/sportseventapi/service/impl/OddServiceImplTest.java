@@ -46,6 +46,7 @@ class OddServiceImplTest {
 
         premierLeague = Competition.builder().id(1L).name("Premier League").build();
 
+        teams = new HashSet<>();
         chelsea.addCompetition(premierLeague);
         arsenal.addCompetition(premierLeague);
         teams.add(chelsea);
@@ -54,9 +55,9 @@ class OddServiceImplTest {
 
         chelseaVsArsenal = Game.builder().id(1L).competition(premierLeague).teamAway(arsenal).teamHome(chelsea).startDate(Calendar.getInstance()).endDate(Calendar.getInstance()).build();
 
-        chelseaOdd = Odd.builder().id(1L).type(GameOddType.HOME_WIN).game(chelseaVsArsenal).value(new BigDecimal(1.5)).build();
-        arsenalOdd = Odd.builder().id(2L).type(GameOddType.AWAY_WIN).game(chelseaVsArsenal).value(new BigDecimal(3.0)).build();
-        drawOdd = Odd.builder().id(3L).type(GameOddType.DRAW).game(chelseaVsArsenal).value(new BigDecimal(4.5)).build();
+        chelseaOdd = Odd.builder().id(1L).type(GameOddType.HOME_WIN).game(chelseaVsArsenal).value(new BigDecimal("1.5")).build();
+        arsenalOdd = Odd.builder().id(2L).type(GameOddType.AWAY_WIN).game(chelseaVsArsenal).value(new BigDecimal("3.0")).build();
+        drawOdd = Odd.builder().id(3L).type(GameOddType.DRAW).game(chelseaVsArsenal).value(new BigDecimal("4.5")).build();
 
         odds = new HashSet<>();
         odds.add(chelseaOdd);
@@ -75,17 +76,17 @@ class OddServiceImplTest {
 
         assertThat(newOdd.getId(), is(1L));
         assertThat(newOdd.getType(), is(GameOddType.HOME_WIN));
-        assertThat(newOdd.getGame().getOdds(), is(new BigDecimal(1.5)));
+        assertThat(newOdd.getValue(), is(new BigDecimal("1.5")));
     }
 
     @Test
     void shouldReturnSetOfOdds_WhenOddsWithSpecificGameExist() {
-        when(oddRepository.findAllByGame(any())).thenReturn(new ArrayList<>(odds));
+        when(oddRepository.findAllByGame(any())).thenReturn(new ArrayList<Odd>(odds));
 
         Set<Odd> oddsFromDb = oddServiceImpl.findAllByGame(chelseaVsArsenal);
 
         assertThat(oddsFromDb, hasSize(3));
-        assertThat(oddsFromDb, contains(chelseaOdd));
+        assertThat(oddsFromDb, hasItem(chelseaOdd));
     }
 
     @Test
@@ -119,7 +120,7 @@ class OddServiceImplTest {
 
     @Test
     void shouldDeleteOdd_whenOddExists() {
-        oddServiceImpl.delete();
+        oddServiceImpl.delete(chelseaOdd);
         verify(oddRepository, times(1)).delete(chelseaOdd);
     }
 
