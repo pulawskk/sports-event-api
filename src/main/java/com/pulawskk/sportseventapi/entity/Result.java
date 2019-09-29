@@ -19,4 +19,9 @@ public class Result {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private Game game;
+
+    public Result(Long id, Game game) {
+        this.id = id;
+        this.game = game;
+    }
 }

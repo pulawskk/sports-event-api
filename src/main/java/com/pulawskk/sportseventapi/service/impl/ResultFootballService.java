@@ -4,5 +4,5 @@ import com.pulawskk.sportseventapi.service.ResultService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ResultServiceImpl implements ResultService {
+public class ResultFootballService implements ResultService {
 }
