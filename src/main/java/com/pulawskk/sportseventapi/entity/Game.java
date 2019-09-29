@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,4 +42,17 @@ public class Game {
 
     @OneToMany(mappedBy = "game")
     private Set<Odd> odds = new HashSet<>();
+
+    @Builder
+    public Game(Long id, Team teamHome, Team teamAway, Competition competition, Calendar startDate, Calendar endDate, Set<Odd> odds) {
+        this.id = id;
+        this.teamAway = teamAway;
+        this.teamHome = teamHome;
+        this.competition = competition;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        if(odds != null) {
+            this.odds = odds;
+        }
+    }
 }
