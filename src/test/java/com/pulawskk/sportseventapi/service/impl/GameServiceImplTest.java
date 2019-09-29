@@ -6,6 +6,7 @@ import com.pulawskk.sportseventapi.entity.Odd;
 import com.pulawskk.sportseventapi.entity.Team;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.repository.GameRepository;
+import com.pulawskk.sportseventapi.repository.OddRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -24,6 +25,9 @@ class GameServiceImplTest {
     @Mock
     private GameRepository gameRepository;
 
+    @Mock
+    private OddRepository oddRepository;
+
     private GameServiceImpl gameServiceImpl;
 
     private Team chelsea;
@@ -39,7 +43,7 @@ class GameServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        gameServiceImpl = new GameServiceImpl();
+        gameServiceImpl = new GameServiceImpl(gameRepository, oddRepository);
 
         chelsea = Team.builder().id(1L).name("Chelsea").build();
         arsenal = Team.builder().id(2L).name("Arsenal").build();
@@ -100,7 +104,7 @@ class GameServiceImplTest {
 
         when(gameRepository.findAllByTeamAwayOrTeamHome(any())).thenReturn(new ArrayList<>(games));
 
-        Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamAwayOrTeamHome(chelsea));
+        Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamAwayOrTeamHome(chelsea.getId()));
 
         assertThat(gamesFromDb, hasSize(2));
         assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
@@ -136,19 +140,19 @@ class GameServiceImplTest {
 
         Game savedGame = gameServiceImpl.save(chelseaVsArsenal);
 
-        assertThat(savedGame.getId(), is(1));
+        assertThat(savedGame.getId(), is(1L));
         assertThat(savedGame.getTeamHome(), is(chelsea));
     }
 
     @Test
     void shouldDeleteGame_whenGameWithSpecificIdExists() {
-        gameServiceImpl.deleteById(anyLong());
-        verify(gameRepository, times(1)).deleteById(1L);
+        gameServiceImpl.deleteById(1L);
+        verify(gameRepository, times(1)).deleteById(anyLong());
     }
 
     @Test
     void shouldDeleteGame_whenGameExists() {
-        gameServiceImpl.delete(any());
-        verify(gameRepository, times(1)).delete(chelseaVsArsenal);
+        gameServiceImpl.delete(chelseaVsArsenal);
+        verify(gameRepository, times(1)).delete(any());
     }
 }
