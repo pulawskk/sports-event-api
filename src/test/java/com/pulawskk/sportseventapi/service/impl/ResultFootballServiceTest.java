@@ -38,12 +38,12 @@ class ResultFootballServiceTest {
 
     private GameReportFootball gameReportFootball;
 
-    private Result resultFootball;
+    private ResultFootball resultFootball;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        resultFootballService = new ResultFootballService();
+        resultFootballService = new ResultFootballService(resultFootballRepository);
 
         chelsea = Team.builder().id(1L).name("Chelsea").build();
         arsenal = Team.builder().id(2L).name("Arsenal").build();
