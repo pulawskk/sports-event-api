@@ -45,6 +45,8 @@ public class Team {
         if(this.competitions == null) {
             this.competitions = new HashSet<>();
         }
-        this.competitions.add(competition);
+        if(competition != null) {
+            this.competitions.add(competition);
+        }
     }
 }

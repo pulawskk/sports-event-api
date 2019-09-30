@@ -61,5 +61,4 @@ public class GameReportFootball extends GameReport{
         this.rCardHome = rCardHome;
         this.rCardAway = rCardAway;
     }
-
 }

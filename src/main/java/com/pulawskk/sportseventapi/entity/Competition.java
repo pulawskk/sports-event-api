@@ -40,6 +40,8 @@ public class Competition {
         if(this.teams == null) {
             this.teams = new HashSet<>();
         }
-        this.teams.add(newTeam);
+        if(newTeam != null) {
+            this.teams.add(newTeam);
+        }
     }
 }
