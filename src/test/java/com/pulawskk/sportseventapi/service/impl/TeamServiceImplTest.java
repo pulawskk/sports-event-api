@@ -15,6 +15,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -52,8 +53,10 @@ class TeamServiceImplTest {
 
         Team newTeam = teamServiceImpl.findById(1L);
 
-        assertThat(newTeam.getId(), is(1L));
-        assertThat(newTeam.getName(), is("Chelsea"));
+        assertAll(() -> {
+            assertThat(newTeam.getId(), is(1L));
+            assertThat(newTeam.getName(), is("Chelsea"));
+        });
     }
 
     @Test
@@ -62,8 +65,10 @@ class TeamServiceImplTest {
 
         Team newTeam = teamServiceImpl.findByName("Chelsea");
 
-        assertThat(newTeam.getName(), is("Chelsea"));
-        assertThat(newTeam.getId(), is(1L));
+        assertAll(() -> {
+            assertThat(newTeam.getName(), is("Chelsea"));
+            assertThat(newTeam.getId(), is(1L));
+        });
     }
 
     @Test

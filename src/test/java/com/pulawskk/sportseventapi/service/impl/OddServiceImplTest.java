@@ -15,6 +15,7 @@ import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -73,9 +74,11 @@ class OddServiceImplTest {
 
         Odd newOdd = oddServiceImpl.findById(1L);
 
-        assertThat(newOdd.getId(), is(1L));
-        assertThat(newOdd.getType(), is(GameOddType.HOME_WIN));
-        assertThat(newOdd.getValue(), is(new BigDecimal("1.5")));
+        assertAll(() -> {
+            assertThat(newOdd.getId(), is(1L));
+            assertThat(newOdd.getType(), is(GameOddType.HOME_WIN));
+            assertThat(newOdd.getValue(), is(new BigDecimal("1.5")));
+        });
     }
 
     @Test
@@ -84,8 +87,10 @@ class OddServiceImplTest {
 
         Set<Odd> oddsFromDb = oddServiceImpl.findAllByGame(chelseaVsArsenal);
 
-        assertThat(oddsFromDb, hasSize(3));
-        assertThat(oddsFromDb, hasItem(chelseaOdd));
+        assertAll(() -> {
+            assertThat(oddsFromDb, hasSize(3));
+            assertThat(oddsFromDb, hasItem(chelseaOdd));
+        });
     }
 
     @Test
@@ -107,8 +112,10 @@ class OddServiceImplTest {
 
         Odd savedOdd = oddServiceImpl.save(chelseaOdd);
 
-        assertThat(savedOdd.getValue(), is(new BigDecimal(1.5)));
-        assertThat(savedOdd.getGame(), is(chelseaVsArsenal));
+        assertAll(() -> {
+            assertThat(savedOdd.getValue(), is(new BigDecimal(1.5)));
+            assertThat(savedOdd.getGame(), is(chelseaVsArsenal));
+        });
     }
 
     @Test

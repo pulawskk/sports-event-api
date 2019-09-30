@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -50,9 +51,11 @@ class GameReportFootballServiceTest {
 
         GameReportFootball gameReportFootballFromDb = gameReportFootballService.findById(1L);
 
-        assertThat(gameReportFootballFromDb.getId(), is(1L));
-        assertThat(gameReportFootballFromDb.getCornerAway(), is(1));
-        assertThat(gameReportFootballFromDb.getYCardAway(), is(7));
+        assertAll(() -> {
+            assertThat(gameReportFootballFromDb.getId(), is(1L));
+            assertThat(gameReportFootballFromDb.getCornerAway(), is(1));
+            assertThat(gameReportFootballFromDb.getYCardAway(), is(7));
+        });
     }
 
     @Test
@@ -60,10 +63,11 @@ class GameReportFootballServiceTest {
         when(gameReportFootballRepository.save(any())).thenReturn(gameReportFootball);
 
         GameReportFootball savedReportFootball = gameReportFootballService.save(gameReportFootball);
-
-        assertThat(savedReportFootball.getId(), is(1L));
-        assertThat(savedReportFootball.getCornerAway(), is(1));
-        assertThat(savedReportFootball.getYCardAway(), is(7));
+        assertAll(() -> {
+            assertThat(savedReportFootball.getId(), is(1L));
+            assertThat(savedReportFootball.getCornerAway(), is(1));
+            assertThat(savedReportFootball.getYCardAway(), is(7));
+        });
     }
 
     @Test

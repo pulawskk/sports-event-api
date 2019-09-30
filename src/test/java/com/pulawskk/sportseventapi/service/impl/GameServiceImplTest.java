@@ -17,6 +17,7 @@ import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -77,8 +78,10 @@ class GameServiceImplTest {
 
         Game gameFromDb = gameServiceImpl.findGameById(1L);
 
-        assertThat(gameFromDb.getId(), is(1L));
-        assertThat(gameFromDb.getTeamHome(), is(chelsea));
+        assertAll(() -> {
+            assertThat(gameFromDb.getId(), is(1L));
+            assertThat(gameFromDb.getTeamHome(), is(chelsea));
+        });
     }
 
     @Test
@@ -106,8 +109,10 @@ class GameServiceImplTest {
 
         Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamAwayOrTeamHome(chelsea.getId()));
 
-        assertThat(gamesFromDb, hasSize(2));
-        assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
+        assertAll(() -> {
+            assertThat(gamesFromDb, hasSize(2));
+            assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
+        });
     }
 
     @Test
@@ -118,8 +123,10 @@ class GameServiceImplTest {
 
         Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamHome(chelsea));
 
-        assertThat(gamesFromDb, hasSize(1));
-        assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
+        assertAll(() -> {
+            assertThat(gamesFromDb, hasSize(1));
+            assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
+        });
     }
 
     @Test
@@ -130,8 +137,10 @@ class GameServiceImplTest {
 
         Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamAway(arsenal));
 
-        assertThat(gamesFromDb, hasSize(1));
-        assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
+        assertAll(() -> {
+            assertThat(gamesFromDb, hasSize(1));
+            assertThat(gamesFromDb, hasItem(chelseaVsArsenal));
+        });
     }
 
     @Test
@@ -140,8 +149,10 @@ class GameServiceImplTest {
 
         Game savedGame = gameServiceImpl.save(chelseaVsArsenal);
 
-        assertThat(savedGame.getId(), is(1L));
-        assertThat(savedGame.getTeamHome(), is(chelsea));
+        assertAll(() -> {
+            assertThat(savedGame.getId(), is(1L));
+            assertThat(savedGame.getTeamHome(), is(chelsea));
+        });
     }
 
     @Test

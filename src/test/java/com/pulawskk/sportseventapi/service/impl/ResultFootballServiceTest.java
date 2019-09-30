@@ -16,6 +16,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -92,8 +93,10 @@ class ResultFootballServiceTest {
 
         ResultFootball resultFootballFromDb = resultFootballService.findById(1L);
 
-        assertThat(resultFootballFromDb.getId(), is(1L));
-        assertThat(resultFootballFromDb.getGame(), is(chelseaVsArsenal));
+        assertAll(() -> {
+            assertThat(resultFootballFromDb.getId(), is(1L));
+            assertThat(resultFootballFromDb.getGame(), is(chelseaVsArsenal));
+        });
     }
 
     //TODO implement own queries to get Result by passing team or competition
@@ -113,8 +116,10 @@ class ResultFootballServiceTest {
 
         ResultFootball savedResultFootball = resultFootballService.save(resultFootball);
 
-        assertThat(savedResultFootball.getId(), is(1L));
-        assertThat(savedResultFootball.getGame(), is(chelseaVsArsenal));
+        assertAll(() -> {
+            assertThat(savedResultFootball.getId(), is(1L));
+            assertThat(savedResultFootball.getGame(), is(chelseaVsArsenal));
+        });
     }
 
     @Test

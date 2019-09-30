@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -60,8 +61,10 @@ class CompetitionServiceImplTest {
 
         Competition newCompetition = competitionServiceImpl.findById(1L);
 
-        assertThat(newCompetition.getId(), is(1L));
-        assertThat(newCompetition.getName(), is("Premier League"));
+        assertAll(() -> {
+            assertThat(newCompetition.getId(), is(1L));
+            assertThat(newCompetition.getName(), is("Premier League"));
+        });
     }
 
     @Test
@@ -70,8 +73,10 @@ class CompetitionServiceImplTest {
 
         Competition newCompetition = competitionServiceImpl.findByName("Premier League");
 
-        assertThat(newCompetition.getId(), is(1L));
-        assertThat(newCompetition.getName(), is("Premier League"));
+        assertAll(() -> {
+            assertThat(newCompetition.getId(), is(1L));
+            assertThat(newCompetition.getName(), is("Premier League"));
+        });
     }
 
     @Test
