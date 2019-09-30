@@ -2,15 +2,15 @@ package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.GameReportFootball;
 import com.pulawskk.sportseventapi.repository.GameReportFootballRepository;
-import com.pulawskk.sportseventapi.service.GameReportService;
+import com.pulawskk.sportseventapi.service.GameReportFootballService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GameReportFootballService implements GameReportService {
+public class GameReportFootballFootballService implements GameReportFootballService {
 
     private final GameReportFootballRepository gameReportFootballRepository;
 
-    public GameReportFootballService(GameReportFootballRepository gameReportFootballRepository) {
+    public GameReportFootballFootballService(GameReportFootballRepository gameReportFootballRepository) {
         this.gameReportFootballRepository = gameReportFootballRepository;
     }
 

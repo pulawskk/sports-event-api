@@ -26,7 +26,6 @@ public class OddServiceImpl implements OddService {
         return new HashSet<>(oddRepository.findAllByGame(game));
     }
 
-
     public Set<Odd> findAllByGameAndType(Game game, GameOddType gameOddType) {
         return new HashSet<>(oddRepository.findAllByGameAndType(game, gameOddType));
     }

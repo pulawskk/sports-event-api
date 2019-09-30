@@ -20,7 +20,7 @@ class GameReportFootballServiceTest {
     @Mock
     private GameReportFootballRepository gameReportFootballRepository;
 
-    private GameReportFootballService gameReportFootballService;
+    private GameReportFootballFootballService gameReportFootballService;
 
     private GameReportFootball gameReportFootball;
 
@@ -28,7 +28,7 @@ class GameReportFootballServiceTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        gameReportFootballService = new GameReportFootballService(gameReportFootballRepository);
+        gameReportFootballService = new GameReportFootballFootballService(gameReportFootballRepository);
 
         gameReportFootball = GameReportFootball.builder()
                 .id(1L)
