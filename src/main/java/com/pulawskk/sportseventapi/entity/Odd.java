@@ -27,7 +27,7 @@ public class Odd {
     @Column(name = "value")
     private BigDecimal value;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "games_id")
     private Game game;
 

@@ -24,7 +24,7 @@ public class Competition {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "competitions")
+    @ManyToMany(mappedBy = "competitions", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private Set<Team> teams = new HashSet<>();
 
     @Builder

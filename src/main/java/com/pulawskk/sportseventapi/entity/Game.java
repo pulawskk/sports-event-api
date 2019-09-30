@@ -40,8 +40,11 @@ public class Game {
     @Column(name = "end_date")
     private Calendar endDate;
 
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
     private Set<Odd> odds = new HashSet<>();
+
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    private ResultFootball resultFootball;
 
     @Builder
     public Game(Long id, Team teamHome, Team teamAway, Competition competition, Calendar startDate, Calendar endDate, Set<Odd> odds) {

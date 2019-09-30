@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Table(name="results_football")
 public class ResultFootball extends Result {
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "game_report_id", referencedColumnName = "id")
     private GameReportFootball gameReport;
 
