@@ -23,4 +23,18 @@ class TeamRepositoryIT {
     @Autowired
     private TeamRepository teamRepository;
 
+    private void insertTeams() {
+        teamRepository.save(Team.builder().id(1L).name("Chelsea").competitions(null).build());
+        teamRepository.flush();
+    }
+
+    @Test
+    void firstTest() {
+        insertTeams();
+        Team teamFromDb = teamRepository.findByName("Chelsea").get();
+        assertAll(() -> {
+            assertThat(teamFromDb.getId(), is(1L));
+            assertThat(teamFromDb.getName(), is("Chelsea"));
+        });
+    }
 }
