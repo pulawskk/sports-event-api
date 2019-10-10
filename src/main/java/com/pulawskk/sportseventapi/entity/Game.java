@@ -63,4 +63,9 @@ public class Game {
         }
         this.status = status;
     }
+
+    public Game(Team teamHome, Team teamAway) {
+        this.teamHome = teamHome;
+        this.teamAway = teamAway;
+    }
 }
