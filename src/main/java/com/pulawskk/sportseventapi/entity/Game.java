@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.pulawskk.sportseventapi.enums.GameStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,8 +47,11 @@ public class Game {
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
     private ResultFootball resultFootball;
 
+    @Column(name = "status")
+    private GameStatus status;
+
     @Builder
-    public Game(Long id, Team teamHome, Team teamAway, Competition competition, Calendar startDate, Calendar endDate, Set<Odd> odds) {
+    public Game(Long id, Team teamHome, Team teamAway, Competition competition, Calendar startDate, Calendar endDate, Set<Odd> odds, GameStatus status) {
         this.id = id;
         this.teamAway = teamAway;
         this.teamHome = teamHome;
@@ -57,5 +61,6 @@ public class Game {
         if(odds != null) {
             this.odds = odds;
         }
+        this.status = status;
     }
 }

@@ -1,52 +1,129 @@
 package com.pulawskk.sportseventapi.service.impl;
 
-import com.pulawskk.sportseventapi.entity.Competition;
+import com.pulawskk.sportseventapi.entity.*;
+import com.pulawskk.sportseventapi.enums.GameOddType;
+import com.pulawskk.sportseventapi.enums.GameStatus;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.hamcrest.Matchers.*;
 
 class FakeFootballServiceTest {
 
+    private FakeFootballService fakeFootballService;
+
+    private Competition competition;
+    private Set<Team> teams;
+
     @BeforeEach
     void setUp() {
-        Competition competition = Competition.builder().id(1L).name("Premier League").build();
-
+        fakeFootballService = new FakeFootballService();
+        competition = Competition.builder().id(1L).name("Premier League").build();
+        teams = Stream.of("Chelsea", "Arsenal",
+                                    "Manchester United", "Manchester City",
+                                    "Newcastle United", "West Ham United",
+                                    "Crystal Palace", "Aston Villa",
+                                    "Norwich", "Leicester",
+                                    "Southampton", "Sheffield United",
+                                    "Tottenham", "Brighton",
+                                    "Everton", "Liverpool",
+                                    "Watford", "Wolverhampton Wanders",
+                                    "Bournemouth", "Burnley")
+                                .map(Team::new)
+                                .collect(Collectors.toSet());
+        competition.setTeams(teams);
     }
 
     @Test
     void shouldReturnSetOfGamesTwiceLess_whenCompetitionHasEvenNumberOfTeams() {
-        //given
-        //competition with 20 teams
+        Set<Game> games = fakeFootballService.generateGames(competition);
 
-        //helper method to generate pair values from 1 to number of teams
-
-        //return set of games, game has only start date, end date, teamHome, teamAway, competition
-
-        //game should have status: BEFORE_ODDS / ODDS / RESULTED
+        assertAll(() -> {
+            assertThat(games, hasSize(competition.getTeams().size()/2));
+            assertThat(games.iterator().next().getResultFootball(), is(nullValue()));
+            assertThat(games.iterator().next().getStatus(), is(GameStatus.PREMATCH));
+            assertThat(games.containsAll(games), notNullValue());
+        });
     }
 
     @Test
-    void generateOdds() {
-        //pass games with teams -> check if their status is BEFORE_ODDS
+    void shouldReturnSetOfGamesWhichUpdatedOdds_whenSetOfGamesIsGiven() {
+        Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
+        Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
 
-        //randomly or based on history/form of each team create odds and generate value for them
-
-        //game has teamHome, teamAway, starDate, endDate, competition, odds
-
-        //game status is ODDS
+        gamesWithOdds.forEach(game -> {
+            assertAll(() -> {
+                assertThat(game.getStatus(), is(GameStatus.PREMATCH));
+                assertThat(game.getOdds(), hasSize(3));
+                assertThat(game.getTeamHome(), is(notNullValue()));
+                assertThat(game.getTeamAway(), is(notNullValue()));
+                assertThat(game.getResultFootball(), is(notNullValue()));
+                assertThat(game.getCompetition().getName(), is(competition.getName()));
+            });
+        });
     }
 
     @Test
-    void generateResult() {
-        //pass games with odds -> check if their status is ODDS
+    void shouldReturnSetOfResult_whenSetOfGamesWithOddsIsGiven() {
+        Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
+        Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
+        Set<ResultFootball> result = fakeFootballService.generateResult(gamesWithOdds);
 
-        //based on form/history or randomly generate results for each game -> create game report
+        assertAll(() -> {
+            assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
+            assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
+            assertThat(result.iterator().next().getGame().getStatus(), is(GameStatus.RESULTED));
+        });
+    }
 
-        //create Result with game and created game report
+    @Test
+    void shouldReturnGameReportFootball_whenGameIsGiven() {
+        Set<Competition> competitions = new HashSet<>();
+        Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).value(new BigDecimal("1.5")).build();
+        Odd oddX = Odd.builder().type(GameOddType.DRAW).value(new BigDecimal("3.5")).build();
+        Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).value(new BigDecimal("5.5")).build();
 
-        //game can change status for RESULTED
+        Set<Odd> odds = new HashSet<>();
+        odds.add(oddH);
+        odds.add(oddA);
+        odds.add(oddX);
 
-        //return set of results
+        competitions.add(competition);
+        Game game = Game.builder().id(1L)
+                                  .teamHome(Team.builder()
+                                          .name("Chelsea")
+                                          .competitions(competitions).build())
+                                  .teamAway(Team.builder().name("Arsenal")
+                                          .competitions(competitions).build())
+                                  .odds(odds)
+                                  .build();
+
+        GameReportFootball gameReportFootball = fakeFootballService.generateReportFootball(game);
+
+        assertAll(() -> {
+            assertThat(gameReportFootball.getCornerHome(), greaterThan(-1));
+            assertThat(gameReportFootball.getCornerAway(), greaterThan(-1));
+            assertThat(gameReportFootball.getYCardAway(), greaterThan(-1));
+            assertThat(gameReportFootball.getYCardHome(), greaterThan(-1));
+            assertThat(gameReportFootball.getRCardAway(), greaterThan(-1));
+            assertThat(gameReportFootball.getRCardHome(), greaterThan(-1));
+            assertThat(gameReportFootball.getGoalAway(), greaterThan(-1));
+            assertThat(gameReportFootball.getGoalHome(), greaterThan(-1));
+        });
+    }
+
+    @Test
+    void shouldGenerateListOfIntegersWithSizeTwiceLessThanTeams_whenCompetitionHasTeams() {
+        List<Integer> pairsOrder = fakeFootballService.generatePairs(competition);
+
+        assertThat(pairsOrder, hasSize(competition.getTeams().size()));
     }
 }

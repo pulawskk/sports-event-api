@@ -1,8 +1,6 @@
 package com.pulawskk.sportseventapi.service;
 
-import com.pulawskk.sportseventapi.entity.Competition;
-import com.pulawskk.sportseventapi.entity.Game;
-import com.pulawskk.sportseventapi.entity.Result;
+import com.pulawskk.sportseventapi.entity.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -11,7 +9,9 @@ import java.util.Set;
 public interface FakeService {
     Set<Game> generateGames(Competition competition);
 
-    Set<Game> generateOdds(Game game);
+    Set<Game> generateOdds(Set<Game> game);
 
-    Set<Result> generateResult(Game game);
+    Set<ResultFootball> generateResult(Set<Game> game);
+
+    GameReportFootball generateReportFootball(Game game);
 }
