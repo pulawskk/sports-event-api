@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamServiceImpl implements TeamService {
@@ -38,7 +39,7 @@ public class TeamServiceImpl implements TeamService {
 
     public Set<Team> findAllByCompetitions(Competition competition) {
         List<Team> teamsFromDb = teamRepository.findAllByCompetitions(competition);
-        return new HashSet<>(teamsFromDb);
+        return teamsFromDb.stream().collect(Collectors.toSet());
     }
 
     public Team save(Team team) {

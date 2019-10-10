@@ -49,4 +49,8 @@ public class Team {
             this.competitions.add(competition);
         }
     }
+
+    public Team(String name) {
+        this.name = name;
+    }
 }
