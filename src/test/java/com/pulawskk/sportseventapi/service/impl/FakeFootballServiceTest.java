@@ -3,30 +3,45 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
-import org.assertj.core.util.Sets;
+import com.pulawskk.sportseventapi.service.GameService;
+import com.pulawskk.sportseventapi.service.TeamService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 class FakeFootballServiceTest {
 
     private FakeFootballService fakeFootballService;
+
+    @Mock
+    private TeamService teamService;
+
+    @Mock
+    private GameService gameService;
 
     private Competition competition;
     private Set<Team> teams;
 
     @BeforeEach
     void setUp() {
-        fakeFootballService = new FakeFootballService();
+        MockitoAnnotations.initMocks(this);
+        fakeFootballService = new FakeFootballService(teamService, gameService);
         competition = Competition.builder().id(1L).name("Premier League").build();
+        Set<Competition> competitions = new HashSet<>();
+        competitions.add(competition);
         teams = Stream.of("Chelsea", "Arsenal",
                                     "Manchester United", "Manchester City",
                                     "Newcastle United", "West Ham United",
@@ -37,25 +52,32 @@ class FakeFootballServiceTest {
                                     "Everton", "Liverpool",
                                     "Watford", "Wolverhampton Wanders",
                                     "Bournemouth", "Burnley")
-                                .map(Team::new)
+                                .map((teamName) -> new Team(teamName))
                                 .collect(Collectors.toSet());
         competition.setTeams(teams);
+        teams.forEach(team -> team.setCompetitions(competitions));
     }
 
     @Test
     void shouldReturnSetOfGamesTwiceLess_whenCompetitionHasEvenNumberOfTeams() {
+        when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
+
         Set<Game> games = fakeFootballService.generateGames(competition);
 
         assertAll(() -> {
             assertThat(games, hasSize(competition.getTeams().size()/2));
             assertThat(games.iterator().next().getResultFootball(), is(nullValue()));
             assertThat(games.iterator().next().getStatus(), is(GameStatus.PREMATCH));
+            assertThat(games.iterator().next().getCompetition(), is(competition));
+            assertThat(games.iterator().next().getId(), is(anyLong()));
             assertThat(games.containsAll(games), notNullValue());
         });
     }
 
     @Test
-    void shouldReturnSetOfGamesWhichUpdatedOdds_whenSetOfGamesIsGiven() {
+    void shouldReturnSetOfGamesWithUpdatedOdds_whenSetOfGamesIsGiven() {
+        when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
+
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
         Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
 
@@ -65,14 +87,17 @@ class FakeFootballServiceTest {
                 assertThat(game.getOdds(), hasSize(3));
                 assertThat(game.getTeamHome(), is(notNullValue()));
                 assertThat(game.getTeamAway(), is(notNullValue()));
-                assertThat(game.getResultFootball(), is(notNullValue()));
+                assertThat(game.getResultFootball(), is(nullValue()));
                 assertThat(game.getCompetition().getName(), is(competition.getName()));
+                assertThat(game.getCompetition().getId(), is(anyLong()));
             });
         });
     }
 
     @Test
     void shouldReturnSetOfResult_whenSetOfGamesWithOddsIsGiven() {
+        when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
+
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
         Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
         Set<ResultFootball> result = fakeFootballService.generateResult(gamesWithOdds);
@@ -81,6 +106,8 @@ class FakeFootballServiceTest {
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
             assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
             assertThat(result.iterator().next().getGame().getStatus(), is(GameStatus.RESULTED));
+            assertThat(result.iterator().next().getGame().getId(), is(anyLong()));
+            assertThat(result.iterator().next().getGame().getTeamAway(), is(notNullValue()));
         });
     }
 
@@ -123,7 +150,15 @@ class FakeFootballServiceTest {
     @Test
     void shouldGenerateListOfIntegersWithSizeTwiceLessThanTeams_whenCompetitionHasTeams() {
         List<Integer> pairsOrder = fakeFootballService.generatePairs(competition);
-
         assertThat(pairsOrder, hasSize(competition.getTeams().size()));
+    }
+
+    @Test
+    void shouldReturnIntFromOneToNine_whenGenerateRandomValueRangeOneToNineIsCalled() {
+        for(int i =0; i < 100; i++) {
+            int number = fakeFootballService.generateRandomValueRangeOneToNine();
+            assertThat(number, lessThan(10));
+            assertThat(number, greaterThan(0));
+        }
     }
 }

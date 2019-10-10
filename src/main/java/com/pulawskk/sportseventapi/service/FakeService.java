@@ -9,9 +9,9 @@ import java.util.Set;
 public interface FakeService {
     Set<Game> generateGames(Competition competition);
 
-    Set<Game> generateOdds(Set<Game> game);
+    Set<Game> generateOdds(Set<Game> games);
 
-    Set<ResultFootball> generateResult(Set<Game> game);
+    Set<ResultFootball> generateResult(Set<Game> games);
 
     GameReportFootball generateReportFootball(Game game);
 }
