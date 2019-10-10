@@ -3,7 +3,9 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
+import com.pulawskk.sportseventapi.service.GameReportFootballService;
 import com.pulawskk.sportseventapi.service.GameService;
+import com.pulawskk.sportseventapi.service.OddService;
 import com.pulawskk.sportseventapi.service.TeamService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +15,13 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
 
 class FakeFootballServiceTest {
 
@@ -32,13 +33,24 @@ class FakeFootballServiceTest {
     @Mock
     private GameService gameService;
 
+    @Mock
+    private OddService oddService;
+
+    @Mock
+    private GameReportFootballService gameReportFootballService;
+
+    @Mock
+    private ResultFootballService resultFootballService;
+
     private Competition competition;
     private Set<Team> teams;
+
+
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        fakeFootballService = new FakeFootballService(teamService, gameService);
+        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService);
         competition = Competition.builder().id(1L).name("Premier League").build();
         Set<Competition> competitions = new HashSet<>();
         competitions.add(competition);
@@ -61,6 +73,8 @@ class FakeFootballServiceTest {
     @Test
     void shouldReturnSetOfGamesTwiceLess_whenCompetitionHasEvenNumberOfTeams() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
+        Game gameForSave = Game.builder().id(1L).build();
+        when(gameService.save(any())).thenReturn(gameForSave);
 
         Set<Game> games = fakeFootballService.generateGames(competition);
 
@@ -69,7 +83,7 @@ class FakeFootballServiceTest {
             assertThat(games.iterator().next().getResultFootball(), is(nullValue()));
             assertThat(games.iterator().next().getStatus(), is(GameStatus.PREMATCH));
             assertThat(games.iterator().next().getCompetition(), is(competition));
-            assertThat(games.iterator().next().getId(), is(anyLong()));
+            assertThat(games.iterator().next().getId(), is(1L));
             assertThat(games.containsAll(games), notNullValue());
         });
     }
@@ -77,6 +91,11 @@ class FakeFootballServiceTest {
     @Test
     void shouldReturnSetOfGamesWithUpdatedOdds_whenSetOfGamesIsGiven() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
+        Game gameForSave = Game.builder().id(1L).build();
+        when(gameService.save(any())).thenReturn(gameForSave);
+
+        Odd oddForSave = Odd.builder().id(1L).build();
+        when(oddService.save(any())).thenReturn(oddForSave);
 
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
         Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
@@ -89,7 +108,7 @@ class FakeFootballServiceTest {
                 assertThat(game.getTeamAway(), is(notNullValue()));
                 assertThat(game.getResultFootball(), is(nullValue()));
                 assertThat(game.getCompetition().getName(), is(competition.getName()));
-                assertThat(game.getCompetition().getId(), is(anyLong()));
+                assertThat(game.getCompetition().getId(), is(1L));
             });
         });
     }
@@ -97,6 +116,17 @@ class FakeFootballServiceTest {
     @Test
     void shouldReturnSetOfResult_whenSetOfGamesWithOddsIsGiven() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
+        Game gameForSave = Game.builder().id(1L).build();
+        when(gameService.save(any())).thenReturn(gameForSave);
+
+        Odd oddForSave = Odd.builder().id(1L).build();
+        when(oddService.save(any())).thenReturn(oddForSave);
+
+        ResultFootball resultFootballForSaved = ResultFootball.builder().id(1L).build();
+        when(resultFootballService.save(any())).thenReturn(resultFootballForSaved);
+
+        GameReportFootball gameReportFootballForSaved = GameReportFootball.builder().id(1L).build();
+        when(gameReportFootballService.save(any())).thenReturn(gameReportFootballForSaved);
 
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
         Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
@@ -106,7 +136,7 @@ class FakeFootballServiceTest {
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
             assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
             assertThat(result.iterator().next().getGame().getStatus(), is(GameStatus.RESULTED));
-            assertThat(result.iterator().next().getGame().getId(), is(anyLong()));
+            assertThat(result.iterator().next().getGame().getId(), is(1L));
             assertThat(result.iterator().next().getGame().getTeamAway(), is(notNullValue()));
         });
     }
@@ -132,6 +162,9 @@ class FakeFootballServiceTest {
                                           .competitions(competitions).build())
                                   .odds(odds)
                                   .build();
+
+        GameReportFootball gameReportFootballForSave = GameReportFootball.builder().id(1L).build();
+        when(gameReportFootballService.save(any())).thenReturn(gameReportFootballForSave);
 
         GameReportFootball gameReportFootball = fakeFootballService.generateReportFootball(game);
 

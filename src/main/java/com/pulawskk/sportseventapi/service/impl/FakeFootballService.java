@@ -3,11 +3,10 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
-import com.pulawskk.sportseventapi.service.FakeService;
-import com.pulawskk.sportseventapi.service.GameService;
-import com.pulawskk.sportseventapi.service.TeamService;
+import com.pulawskk.sportseventapi.service.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -17,10 +16,16 @@ public class FakeFootballService implements FakeService {
 
     private final TeamService teamService;
     private final GameService gameService;
+    private final OddService oddService;
+    private final GameReportFootballService gameReportFootballService;
+    private final ResultFootballService resultFootballService;
 
-    public FakeFootballService(TeamService teamService, GameService gameService) {
+    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService) {
         this.teamService = teamService;
         this.gameService = gameService;
+        this.oddService = oddService;
+        this.gameReportFootballService = gameReportFootballService;
+        this.resultFootballService = resultFootballService;
     }
 
     @Override
@@ -73,34 +78,56 @@ public class FakeFootballService implements FakeService {
         
         Set<Game> calculatedOdds = games.stream().map(game -> {
             Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
+            oddH.setValue(generateRandomValueForOdds());
             Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
+            oddA.setValue(generateRandomValueForOdds());
             Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
+            oddX.setValue(generateRandomValueForOdds());
             Set<Odd> odds = new HashSet<>();
             odds.add(oddA);
             odds.add(oddX);
             odds.add(oddH);
+            Odd savedOddA = oddService.save(oddA);
+            Odd savedOddX = oddService.save(oddX);
+            Odd savedOddH = oddService.save(oddH);
+            oddA.setId(savedOddA.getId());
+            oddH.setId(savedOddH.getId());
+            oddX.setId(savedOddX.getId());
             game.setOdds(odds);
             return game;
         }).collect(Collectors.toSet());
+
+        for(Game game : games) {
+            if(game.getId() != null) {
+                gameService.save(game);
+            } else {
+                Game savedGame = gameService.save(game);
+                game.setId(savedGame.getId());
+            }
+        }
+        games.forEach(game -> gameService.save(game));
 
         return calculatedOdds;
     }
 
     @Override
     public Set<ResultFootball> generateResult(Set<Game> games) {
-        Set<ResultFootball> resultFootball = new HashSet<>();
+        Set<ResultFootball> results = new HashSet<>();
 
         if(games != null) {
             for (Game game : games) {
                 game.setStatus(GameStatus.RESULTED);
-                ResultFootball resultFootball1 = ResultFootball.builder()
+                gameService.save(game);
+                ResultFootball resultFootball = ResultFootball.builder()
                         .game(game)
                         .gameReportFootball(generateReportFootball(game))
                         .build();
-                resultFootball.add(resultFootball1);
+                ResultFootball resultFootballSaved = resultFootballService.save(resultFootball);
+                resultFootball.setId(resultFootballSaved.getId());
+                results.add(resultFootball);
             }
         }
-        return resultFootball;
+        return results;
     }
 
     @Override
@@ -120,10 +147,18 @@ public class FakeFootballService implements FakeService {
                     .rCardAway(generateRandomValueRangeOneToNine())
                     .build();
         }
+        GameReportFootball gameReportFootball1Saved = gameReportFootballService.save(gameReportFootball);
+        gameReportFootball.setId(gameReportFootball1Saved.getId());
         return gameReportFootball;
     }
 
     int generateRandomValueRangeOneToNine() {
         return (int) (Math.random() * 9 + 1);
+    }
+
+    BigDecimal generateRandomValueForOdds() {
+        double number = (Math.random() * 600 )/100 + 1.2;
+        String numberString = String.valueOf(number);
+        return new BigDecimal(numberString);
     }
 }
