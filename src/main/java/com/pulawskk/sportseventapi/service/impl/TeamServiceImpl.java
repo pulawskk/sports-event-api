@@ -1,7 +1,9 @@
 package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.Competition;
+import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
+import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.TeamRepository;
 import com.pulawskk.sportseventapi.service.TeamService;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,11 @@ import java.util.stream.Collectors;
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
+    private final GameServiceImpl gameService;
 
-    public TeamServiceImpl(TeamRepository teamRepository) {
+    public TeamServiceImpl(TeamRepository teamRepository, GameServiceImpl gameService) {
         this.teamRepository = teamRepository;
+        this.gameService = gameService;
     }
 
 
@@ -28,13 +32,17 @@ public class TeamServiceImpl implements TeamService {
     }
 
     public Team findByName(String name) {
-        Optional<Team> teamFromDb = teamRepository.findByName(name);
+        Optional<Team> teamFromDb = teamRepository.findFirstByName(name);
         return teamFromDb.orElse(null);
     }
 
     public Set<Team> findAll() {
         List<Team> teamsFromDb = teamRepository.findAll();
-        return new HashSet<>(teamsFromDb);
+        Set<Team> teams = new HashSet<>();
+        if (teamsFromDb != null) {
+            return teamsFromDb.stream().collect(Collectors.toSet());
+        }
+        return teams;
     }
 
     public Set<Team> findAllByCompetitions(Competition competition) {
@@ -52,5 +60,20 @@ public class TeamServiceImpl implements TeamService {
 
     public void delete(Team team) {
         teamRepository.delete(team);
+    }
+
+    public void flush(){
+        teamRepository.flush();
+    }
+
+    public void deleteAll() {
+        Set<Team> teams = teamRepository.findAll().stream().collect(Collectors.toSet());
+        for(Team team : teams) {
+            Set<Game> games = gameService.findAllByTeamAwayOrTeamHome(team.getId()).stream().collect(Collectors.toSet());
+            for(Game game : games) {
+                gameService.delete(game);
+            }
+        }
+        teamRepository.deleteAll();
     }
 }

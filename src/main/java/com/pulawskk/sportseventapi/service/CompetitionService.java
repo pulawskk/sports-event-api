@@ -22,4 +22,6 @@ public interface CompetitionService {
     void deleteById(Long id);
 
     void delete(Competition competition);
+
+    void deleteAll();
 }

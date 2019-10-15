@@ -21,7 +21,7 @@ insert into teams(id, name) values (1, 'Chelsea'),
 
 insert into competitions(id, name) values (1, 'Premier League');
 
-insert into team_competition(teams_id, competitions_id) values (1,1),
+insert into team_competition(teams_id, competitions_id) values (1, 1),
                                                                (2, 1),
                                                                (3, 1),
                                                                (4, 1),

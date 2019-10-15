@@ -6,7 +6,7 @@ import com.pulawskk.sportseventapi.entity.Odd;
 import com.pulawskk.sportseventapi.entity.Team;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.repository.GameRepository;
-import com.pulawskk.sportseventapi.repository.OddRepository;
+import com.pulawskk.sportseventapi.service.OddService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -27,7 +27,10 @@ class GameServiceImplTest {
     private GameRepository gameRepository;
 
     @Mock
-    private OddRepository oddRepository;
+    private OddService oddService;
+
+    @Mock
+    private ResultFootballService resultFootball;
 
     private GameServiceImpl gameServiceImpl;
 
@@ -44,7 +47,7 @@ class GameServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        gameServiceImpl = new GameServiceImpl(gameRepository, oddRepository);
+        gameServiceImpl = new GameServiceImpl(gameRepository, oddService, resultFootball);
 
         chelsea = Team.builder().id(1L).name("Chelsea").build();
         arsenal = Team.builder().id(2L).name("Arsenal").build();

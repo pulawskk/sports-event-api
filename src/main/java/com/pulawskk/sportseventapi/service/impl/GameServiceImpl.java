@@ -1,10 +1,9 @@
 package com.pulawskk.sportseventapi.service.impl;
 
-import com.pulawskk.sportseventapi.entity.Game;
-import com.pulawskk.sportseventapi.entity.Team;
+import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.repository.GameRepository;
-import com.pulawskk.sportseventapi.repository.OddRepository;
 import com.pulawskk.sportseventapi.service.GameService;
+import com.pulawskk.sportseventapi.service.OddService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -14,11 +13,13 @@ import java.util.Set;
 public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
-    private final OddRepository oddRepository;
+    private final OddService oddService;
+    private final ResultFootballService resultFootballService;
 
-    public GameServiceImpl(GameRepository gameRepository, OddRepository oddRepository) {
+    public GameServiceImpl(GameRepository gameRepository, OddService oddService, ResultFootballService resultFootballService) {
         this.gameRepository = gameRepository;
-        this.oddRepository = oddRepository;
+        this.oddService = oddService;
+        this.resultFootballService = resultFootballService;
     }
 
     public Game findGameById(Long id) {
@@ -43,8 +44,8 @@ public class GameServiceImpl implements GameService {
 
     public Game save(Game game) {
         game.getOdds().forEach(odd -> {
-            if (oddRepository.findById(odd.getId()) == null) {
-                oddRepository.save(odd);
+            if (oddService.findById(odd.getId()) == null) {
+                oddService.save(odd);
             }
         });
 
@@ -58,6 +59,20 @@ public class GameServiceImpl implements GameService {
 
 
     public void delete(Game game) {
+        Set<Odd> oddsToDelete = game.getOdds();
+        for (Odd odd : oddsToDelete) {
+            oddService.delete(odd);
+        }
+        ResultFootball gameResultFootballToDelete = game.getResultFootball();
+        if (gameResultFootballToDelete != null) {
+            resultFootballService.delete(gameResultFootballToDelete);
+        }
+
         gameRepository.delete(game);
+    }
+
+    @Override
+    public void flush() {
+        gameRepository.flush();
     }
 }

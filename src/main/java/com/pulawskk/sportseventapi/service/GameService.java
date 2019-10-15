@@ -22,4 +22,6 @@ public interface GameService {
     void deleteById(Long id);
 
     void delete(Game game);
+
+    void flush();
 }

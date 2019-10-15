@@ -24,7 +24,7 @@ public class Team {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "team_competition",
             joinColumns = {@JoinColumn(name = "teams_id")},

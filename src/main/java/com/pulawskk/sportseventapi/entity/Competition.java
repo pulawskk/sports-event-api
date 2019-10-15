@@ -18,13 +18,13 @@ import java.util.Set;
 public class Competition {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "competitions", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(mappedBy = "competitions", fetch = FetchType.LAZY)
     private Set<Team> teams = new HashSet<>();
 
     @Builder

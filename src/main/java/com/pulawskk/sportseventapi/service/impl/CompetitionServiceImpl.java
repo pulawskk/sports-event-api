@@ -87,4 +87,13 @@ public class CompetitionServiceImpl implements CompetitionService {
     public void delete(Competition competition) {
         competitionRepository.delete(competition);
     }
+
+    @Override
+    public void deleteAll() {
+        competitionRepository.deleteAll();
+    }
+
+    public void flush() {
+        competitionRepository.flush();
+    }
 }

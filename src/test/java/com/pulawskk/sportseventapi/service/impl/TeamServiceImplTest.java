@@ -2,7 +2,9 @@ package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Team;
+import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.TeamRepository;
+import com.pulawskk.sportseventapi.service.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -24,6 +26,9 @@ class TeamServiceImplTest {
     @Mock
     private TeamRepository teamRepository;
 
+    @Mock
+    private GameServiceImpl gameService;
+
     private TeamServiceImpl teamServiceImpl;
 
     private Team teamChelsea;
@@ -43,7 +48,7 @@ class TeamServiceImplTest {
         teams.add(teamChelsea);
         premierLeagueCompetition.setTeams(teams);
 
-        teamServiceImpl = new TeamServiceImpl(teamRepository);
+        teamServiceImpl = new TeamServiceImpl(teamRepository, gameService);
     }
 
     @Test
@@ -61,7 +66,7 @@ class TeamServiceImplTest {
 
     @Test
     void shouldReturnTeam_whenTeamWithSpecificNameExists() {
-        when(teamRepository.findByName(anyString())).thenReturn(Optional.of(teamChelsea));
+        when(teamRepository.findFirstByName(anyString())).thenReturn(Optional.of(teamChelsea));
 
         Team newTeam = teamServiceImpl.findByName("Chelsea");
 

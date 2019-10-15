@@ -22,4 +22,6 @@ public interface TeamService {
     void deleteById(Long id);
 
     void delete(Team team);
+
+    void deleteAll();
 }
