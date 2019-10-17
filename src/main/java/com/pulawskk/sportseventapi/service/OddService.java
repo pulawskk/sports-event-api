@@ -23,4 +23,6 @@ public interface OddService {
     void delete(Odd odd);
 
     void deleteAllByGame(Game game);
+
+    void flush();
 }

@@ -7,11 +7,9 @@ import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.TeamRepository;
 import com.pulawskk.sportseventapi.service.TeamService;
 import org.springframework.stereotype.Service;
+import org.testcontainers.shaded.com.google.common.collect.Lists;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,11 +67,24 @@ public class TeamServiceImpl implements TeamService {
     public void deleteAll() {
         Set<Team> teams = teamRepository.findAll().stream().collect(Collectors.toSet());
         for(Team team : teams) {
+            team.setCompetitions(null);
+//            Set<Game> gamesAway = gameService.findAllByTeamAway(team).stream().collect(Collectors.toSet());
+//            for(Game game : gamesAway) {
+//                game.setTeamAway(null);
+//            }
+//            Set<Game> gamesHome = gameService.findAllByTeamHome(team).stream().collect(Collectors.toSet());
+//            for(Game game : gamesHome) {
+//                game.setTeamHome(null);
+//            }
             Set<Game> games = gameService.findAllByTeamAwayOrTeamHome(team.getId()).stream().collect(Collectors.toSet());
             for(Game game : games) {
+                game.setTeamAway(null);
+                game.setTeamHome(null);
                 gameService.delete(game);
             }
+            teamRepository.deleteById(team.getId());
         }
-        teamRepository.deleteAll();
+
+        teams = teamRepository.findAll().stream().collect(Collectors.toSet());
     }
 }

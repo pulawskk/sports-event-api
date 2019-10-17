@@ -48,4 +48,9 @@ public class OddServiceImpl implements OddService {
     public void deleteAllByGame(Game game) {
         oddRepository.deleteAllByGame(game);
     }
+
+    @Override
+    public void flush() {
+        oddRepository.flush();
+    }
 }

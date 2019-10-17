@@ -59,15 +59,16 @@ public class GameServiceImpl implements GameService {
 
 
     public void delete(Game game) {
-        Set<Odd> oddsToDelete = game.getOdds();
-        for (Odd odd : oddsToDelete) {
-            oddService.delete(odd);
-        }
-        ResultFootball gameResultFootballToDelete = game.getResultFootball();
-        if (gameResultFootballToDelete != null) {
-            resultFootballService.delete(gameResultFootballToDelete);
-        }
-
+//        Set<Odd> oddsToDelete = game.getOdds();
+//        for (Odd odd : oddsToDelete) {
+//            oddService.delete(odd);
+//        }
+//        ResultFootball gameResultFootballToDelete = game.getResultFootball();
+//        if (gameResultFootballToDelete != null) {
+//            resultFootballService.delete(gameResultFootballToDelete);
+//        }
+        game.setTeamHome(null);
+        game.setTeamAway(null);
         gameRepository.delete(game);
     }
 

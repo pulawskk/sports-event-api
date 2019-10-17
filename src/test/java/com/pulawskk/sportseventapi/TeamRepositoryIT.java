@@ -1,12 +1,10 @@
 package com.pulawskk.sportseventapi;
 
-import com.pulawskk.sportseventapi.entity.Competition;
-import com.pulawskk.sportseventapi.entity.Game;
-import com.pulawskk.sportseventapi.entity.Team;
+import com.pulawskk.sportseventapi.entity.*;
+import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
-import com.pulawskk.sportseventapi.service.impl.CompetitionServiceImpl;
-import com.pulawskk.sportseventapi.service.impl.GameServiceImpl;
-import com.pulawskk.sportseventapi.service.impl.TeamServiceImpl;
+import com.pulawskk.sportseventapi.service.GameReportFootballService;
+import com.pulawskk.sportseventapi.service.impl.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +40,15 @@ class TeamRepositoryIT {
     @Autowired
     private GameServiceImpl gameService;
 
+    @Autowired
+    private OddServiceImpl oddService;
+
+    @Autowired
+    private GameReportFootballService gameReportFootballService;
+
+    @Autowired
+    private ResultFootballService resultFootballService;
+
     private Competition competition;
     private Set<Competition> competitions = new HashSet<>();
 
@@ -56,9 +64,6 @@ class TeamRepositoryIT {
         Team teamChelsea = Team.builder().name("Chelsea").competitions(competitions).build();
         Team teamArsenal = Team.builder().name("Arsenal").competitions(competitions).build();
         Team teamEverton = Team.builder().name("Everton").competitions(competitions).build();
-        teamService.save(teamChelsea);
-        teamService.save(teamArsenal);
-        teamService.save(teamEverton);
         Set<Team> teams = new HashSet<>();
         teams.add(teamChelsea);
         teams.add(teamArsenal);
@@ -69,18 +74,52 @@ class TeamRepositoryIT {
         competition.setId(savedCompetition.getId());
         competitions.add(competition);
 
+        teamService.save(teamChelsea);
+        teamService.save(teamArsenal);
+        teamService.save(teamEverton);
+
+        Odd oddHome = Odd.builder().type(GameOddType.HOME_WIN).value(new BigDecimal("1.5")).build();
+        Odd oddDraw = Odd.builder().type(GameOddType.DRAW).value(new BigDecimal("4.5")).build();
+        Odd oddAway = Odd.builder().type(GameOddType.AWAY_WIN).value(new BigDecimal("6.5")).build();
+        Set<Odd> odds = new HashSet<>();
+        odds.add(oddHome);
+        odds.add(oddDraw);
+        odds.add(oddAway);
+        oddService.save(oddHome);
+        oddService.save(oddAway);
+        oddService.save(oddDraw);
+
+        GameReportFootball gameReportFootball = GameReportFootball.builder()
+                .rCardHome(2).rCardAway(2)
+                .yCardHome(3).yCardAway(3)
+                .cornerHome(5).cornerAway(5)
+                .offsideHome(6).offsideAway(6)
+                .goalHome(1).goalAway(1).build();
+        gameReportFootballService.save(gameReportFootball);
+
         Game gameFirst = Game.builder().teamAway(teamArsenal).teamHome(teamChelsea)
-                .competition(competition).status(GameStatus.PREMATCH).build();
+                .competition(competition).status(GameStatus.PREMATCH).odds(odds)
+                .build();
+
+        ResultFootball resultFootball = ResultFootball.builder().gameReportFootball(gameReportFootball)
+                .game(gameFirst).build();
+        resultFootballService.save(resultFootball);
+
+//        Game gameSecond = Game.builder().teamHome(teamEverton).teamAway(teamChelsea)
+//                .competition(competition).status(GameStatus.PREMATCH).odds(odds).build();
+//
+//        Game gameThird = Game.builder().teamHome(teamChelsea).teamAway(teamEverton)
+//                .competition(competition).status(GameStatus.PREMATCH).odds(odds).build();
+//
+//        Game gameFourth = Game.builder().teamHome(teamArsenal).teamAway(teamEverton)
+//                .competition(competition).status(GameStatus.PREMATCH).odds(odds).build();
+
         gameService.save(gameFirst);
+//        gameService.save(gameSecond);
+//        gameService.save(gameThird);
+//        gameService.save(gameFourth);
 
-        Game gameSecond = Game.builder().teamHome(teamEverton).teamAway(teamChelsea)
-                .competition(competition).status(GameStatus.PREMATCH).build();
-        gameService.save(gameSecond);
-
-        Game gameThird = Game.builder().teamHome(teamChelsea).teamAway(teamEverton)
-                .competition(competition).status(GameStatus.PREMATCH).build();
-        gameService.save(gameThird);
-
+        oddService.flush();
         teamService.flush();
         competitionServiceImpl.flush();
         gameService.flush();
@@ -169,7 +208,6 @@ class TeamRepositoryIT {
 
     @Test
     void testDeleteAll() {
-        Set<Team> teams2 = teamService.findAll();
         teamService.deleteAll();
 
         Set<Team> teams = teamService.findAll();
