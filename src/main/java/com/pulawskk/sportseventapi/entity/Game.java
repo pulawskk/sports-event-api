@@ -20,18 +20,20 @@ import java.util.Set;
 public class Game {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
+    @SequenceGenerator(name="new_generator", sequenceName = "author_seq", initialValue = 5)
     private Long id;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne
     @JoinColumn(name = "team_home_id", referencedColumnName = "id")
     private Team teamHome;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne
     @JoinColumn(name = "team_away_id", referencedColumnName = "id")
     private Team teamAway;
-//
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+
+    @ManyToOne
     @JoinColumn(name = "competition_id", referencedColumnName = "id")
     private Competition competition;
 

@@ -42,6 +42,7 @@ insert into team_competition(teams_id, competitions_id) values (1,1),
                                                                (19, 1),
                                                                (20, 1);
 
+
 insert into games(id, team_home_id, team_away_id, competition_id, start_date, end_date)
 values (1, 1, 2, 1, LOCALTIMESTAMP, LOCALTIMESTAMP),
        (2, 3, 4, 1, LOCALTIMESTAMP, LOCALTIMESTAMP),
