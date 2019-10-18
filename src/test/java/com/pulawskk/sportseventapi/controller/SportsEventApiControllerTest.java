@@ -4,7 +4,9 @@ import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.GameReportFootballService;
+import com.pulawskk.sportseventapi.service.impl.GameReportFootballFootballService;
 import com.pulawskk.sportseventapi.service.impl.GameServiceImpl;
+import com.pulawskk.sportseventapi.service.impl.ResultFootballService;
 import javafx.scene.chart.BubbleChart;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,10 +35,10 @@ class SportsEventApiControllerTest {
     private GameServiceImpl gameService;
 
     @Mock
-    private GameReportFootballService gameReportFootballService;
+    private GameReportFootballFootballService gameReportFootballFootballService;
 
     @Mock
-    private ResultFootball resultFootball;
+    private ResultFootballService resultFootballService;
 
     private MockMvc mockMvc;
 
@@ -49,7 +51,7 @@ class SportsEventApiControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        sportsEventApiController = new SportsEventApiController(gameService, gameReportFootballService, resultFootball);
+        sportsEventApiController = new SportsEventApiController(gameService, gameReportFootballFootballService, resultFootballService);
         Team chelsea = Team.builder().id(1L).name("Chelsea").build();
         Team arsenal = Team.builder().id(2L).name("Arsenal").build();
         Team everton = Team.builder().id(3L).name("Everton").build();

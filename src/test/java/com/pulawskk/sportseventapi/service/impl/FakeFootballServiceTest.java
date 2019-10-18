@@ -3,10 +3,7 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
-import com.pulawskk.sportseventapi.service.GameReportFootballService;
-import com.pulawskk.sportseventapi.service.GameService;
-import com.pulawskk.sportseventapi.service.OddService;
-import com.pulawskk.sportseventapi.service.TeamService;
+import com.pulawskk.sportseventapi.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -42,15 +39,17 @@ class FakeFootballServiceTest {
     @Mock
     private ResultFootballService resultFootballService;
 
+    @Mock
+    private CompetitionService competitionService;
+
     private Competition competition;
     private Set<Team> teams;
-
 
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService);
+        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService, competitionService);
         competition = Competition.builder().id(1L).name("Premier League").build();
         Set<Competition> competitions = new HashSet<>();
         competitions.add(competition);

@@ -4,6 +4,7 @@ import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,13 +20,15 @@ public class FakeFootballService implements FakeService {
     private final OddService oddService;
     private final GameReportFootballService gameReportFootballService;
     private final ResultFootballService resultFootballService;
+    private final CompetitionService competitionService;
 
-    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService) {
+    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService) {
         this.teamService = teamService;
         this.gameService = gameService;
         this.oddService = oddService;
         this.gameReportFootballService = gameReportFootballService;
         this.resultFootballService = resultFootballService;
+        this.competitionService = competitionService;
     }
 
     @Override
@@ -160,5 +163,14 @@ public class FakeFootballService implements FakeService {
         double number = (Math.random() * 600 )/100 + 1.2;
         String numberString = String.valueOf(number);
         return new BigDecimal(numberString);
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    void generateGamesForCompetition() {
+        Competition competition = competitionService.findByName("Premier League");
+
+        Set<Game> gamesWithOutOdds = generateGames(competition);
+
+//        gamesWithOutOdds.forEach(game -> gameService.save(game));
     }
 }
