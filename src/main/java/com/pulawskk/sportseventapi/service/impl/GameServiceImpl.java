@@ -75,19 +75,24 @@ public class GameServiceImpl implements GameService {
 
         if(currentGamesFromDb != null) {
             currentGamesFromDb.forEach(game -> {
-                JSONObject json = new JSONObject();
-                json.put("teamHome", game.getTeamHome().getName());
-                json.put("teamAway", game.getTeamAway().getName());
-                json.put("odds", game.getOdds());
-                json.put("gameStatus", game.getStatus().name());
-                Optional.ofNullable(game.getStartDate()).ifPresent(date -> json.put("startGame", date));
-                Optional.ofNullable(game.getEndDate()).ifPresent(date -> json.put("endGame", date));
-                generatedGames.add(json);
+                generatedGames.add(generateJsonFromGame(game));
             });
         }
         JSONObject jsonInfo = new JSONObject();
         jsonInfo.put("gamesNumber", currentGamesFromDb.size());
         generatedGames.add(jsonInfo);
         return generatedGames;
+    }
+
+    public JSONObject generateJsonFromGame(Game game) {
+        JSONObject jsonFromGame = new JSONObject();
+        JSONObject json = new JSONObject();
+        json.put("teamHome", game.getTeamHome().getName());
+        json.put("teamAway", game.getTeamAway().getName());
+        json.put("odds", game.getOdds());
+        json.put("gameStatus", game.getStatus().name());
+        Optional.ofNullable(game.getStartDate()).ifPresent(date -> json.put("startGame", date));
+        Optional.ofNullable(game.getEndDate()).ifPresent(date -> json.put("endGame", date));
+        return jsonFromGame;
     }
 }

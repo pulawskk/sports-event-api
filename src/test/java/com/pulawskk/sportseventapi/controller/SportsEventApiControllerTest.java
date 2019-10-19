@@ -6,6 +6,7 @@ import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.impl.GameReportFootballFootballService;
 import com.pulawskk.sportseventapi.service.impl.GameServiceImpl;
 import com.pulawskk.sportseventapi.service.impl.ResultFootballService;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,9 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -134,15 +138,18 @@ class SportsEventApiControllerTest {
 
     @Test
     void shouldReturnJsonWithGames_whenEnterApiEventsGames() throws Exception {
-        when(gameService.findAllGeneratedGamesForCompetition(anyLong())).thenReturn(gamesWithOdds);
+        List<JSONObject> jsonGames = new ArrayList<>();
+
+        gamesWithOdds.forEach(game -> {
+            jsonGames.add(gameService.generateJsonFromGame(game));
+        });
+        when(gameService.generateGames(anyLong())).thenReturn(jsonGames);
 
         mockMvc.perform(get("/api/events/1/games")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-//                .andExpect(header().string("Location", "api/events/1/games"))
-                .andExpect(jsonPath("$.id").value(1L));
+                .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
+                .andExpect(status().isOk());
     }
 
 //    @Test
