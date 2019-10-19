@@ -18,4 +18,6 @@ public interface ResultService {
     void deleteById(Long id);
 
     Set<ResultFootball> findAllResultsForCompetition(Competition competition);
+
+    Set<ResultFootball> saveAll(Set<ResultFootball> results);
 }

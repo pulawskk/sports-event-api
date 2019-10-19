@@ -7,6 +7,7 @@ import com.pulawskk.sportseventapi.service.ResultService;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ResultFootballService implements ResultService {
@@ -36,5 +37,10 @@ public class ResultFootballService implements ResultService {
     @Override
     public Set<ResultFootball> findAllResultsForCompetition(Competition competition) {
         return null;
+    }
+
+    @Override
+    public Set<ResultFootball> saveAll(Set<ResultFootball> results) {
+        return resultFootballRepository.saveAll(results).stream().collect(Collectors.toSet());
     }
 }
