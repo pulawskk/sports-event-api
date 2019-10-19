@@ -14,7 +14,8 @@ import javax.persistence.*;
 public class GameReport {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
+    @SequenceGenerator(name="new_generator", sequenceName = "game_report_seq", initialValue = 5)
     private Long id;
 
     public GameReport(Long id) {

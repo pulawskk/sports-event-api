@@ -13,7 +13,8 @@ import javax.persistence.*;
 public class Result {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
+    @SequenceGenerator(name="new_generator", sequenceName = "result_seq", initialValue = 5)
     private Long id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
