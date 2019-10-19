@@ -122,8 +122,6 @@ public class FakeFootballService implements FakeService {
                         .build();
                 game.setResultFootball(resultFootball);
                 game.setStatus(GameStatus.RESULTED);
-//                ResultFootball resultFootballSaved = resultFootballService.save(resultFootball);
-//                resultFootball.setId(resultFootballSaved.getId());
 
                 results.add(resultFootball);
             }

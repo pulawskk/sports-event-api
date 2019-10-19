@@ -12,6 +12,8 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -72,18 +74,23 @@ class FakeFootballServiceTest {
     @Test
     void shouldReturnSetOfGamesTwiceLess_whenCompetitionHasEvenNumberOfTeams() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
-        Game gameForSave = Game.builder().id(1L).build();
-        when(gameService.save(any())).thenReturn(gameForSave);
+        Set<Game> gamesForSaved = new HashSet<>();
+        LongStream.iterate(1, n -> n+1).limit(10)
+                .forEach(n -> gamesForSaved.add(Game.builder()
+                        .id(Long.valueOf(n))
+                        .status(GameStatus.CREATED)
+                        .competition(competition)
+                        .build()));
+        when(gameService.saveAll(anySet())).thenReturn(gamesForSaved);
 
         Set<Game> games = fakeFootballService.generateGames(competition);
 
         assertAll(() -> {
             assertThat(games, hasSize(competition.getTeams().size()/2));
             assertThat(games.iterator().next().getResultFootball(), is(nullValue()));
-            assertThat(games.iterator().next().getStatus(), is(GameStatus.PREMATCH));
+            assertThat(games.iterator().next().getStatus(), is(GameStatus.CREATED));
             assertThat(games.iterator().next().getCompetition(), is(competition));
-            assertThat(games.iterator().next().getId(), is(1L));
-            assertThat(games.containsAll(games), notNullValue());
+            assertThat(games.containsAll(gamesForSaved), notNullValue());
         });
     }
 
@@ -116,13 +123,17 @@ class FakeFootballServiceTest {
     void shouldReturnSetOfResult_whenSetOfGamesWithOddsIsGiven() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
         Game gameForSave = Game.builder().id(1L).build();
-        when(gameService.save(any())).thenReturn(gameForSave);
+        Set<Game> gamesForSave = new HashSet<>();
+        gamesForSave.add(gameForSave);
+        when(gameService.saveAll(anySet())).thenReturn(gamesForSave);
 
         Odd oddForSave = Odd.builder().id(1L).build();
         when(oddService.save(any())).thenReturn(oddForSave);
 
         ResultFootball resultFootballForSaved = ResultFootball.builder().id(1L).build();
-        when(resultFootballService.save(any())).thenReturn(resultFootballForSaved);
+        Set<ResultFootball> resultsFootballForSaved = new HashSet<>();
+        resultsFootballForSaved.add(resultFootballForSaved);
+        when(resultFootballService.saveAll(anySet())).thenReturn(resultsFootballForSaved);
 
         GameReportFootball gameReportFootballForSaved = GameReportFootball.builder().id(1L).build();
         when(gameReportFootballService.save(any())).thenReturn(gameReportFootballForSaved);
@@ -134,9 +145,6 @@ class FakeFootballServiceTest {
         assertAll(() -> {
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
             assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
-            assertThat(result.iterator().next().getGame().getStatus(), is(GameStatus.RESULTED));
-            assertThat(result.iterator().next().getGame().getId(), is(1L));
-            assertThat(result.iterator().next().getGame().getTeamAway(), is(notNullValue()));
         });
     }
 
