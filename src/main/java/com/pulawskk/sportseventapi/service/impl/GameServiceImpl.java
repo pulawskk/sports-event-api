@@ -1,14 +1,17 @@
 package com.pulawskk.sportseventapi.service.impl;
 
+import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
 import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.OddRepository;
 import com.pulawskk.sportseventapi.service.GameService;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GameServiceImpl implements GameService {
@@ -59,5 +62,32 @@ public class GameServiceImpl implements GameService {
 
     public void delete(Game game) {
         gameRepository.delete(game);
+    }
+
+    @Override
+    public Set<Game> findAllGeneratedGamesForCompetition(Long competitionId) {
+        return gameRepository.findAllGeneratedGames(competitionId).stream().collect(Collectors.toSet());
+    }
+
+    public List<JSONObject> generateGames(Long competitionId) throws JSONException {
+        Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
+        List<JSONObject> generatedGames = new ArrayList<>();
+
+        if(currentGamesFromDb != null) {
+            currentGamesFromDb.forEach(game -> {
+                JSONObject json = new JSONObject();
+                json.put("teamHome", game.getTeamHome().getName());
+                json.put("teamAway", game.getTeamAway().getName());
+                json.put("odds", game.getOdds());
+                json.put("gameStatus", game.getStatus().name());
+                Optional.ofNullable(game.getStartDate()).ifPresent(date -> json.put("startGame", date));
+                Optional.ofNullable(game.getEndDate()).ifPresent(date -> json.put("endGame", date));
+                generatedGames.add(json);
+            });
+        }
+        JSONObject jsonInfo = new JSONObject();
+        jsonInfo.put("gamesNumber", currentGamesFromDb.size());
+        generatedGames.add(jsonInfo);
+        return generatedGames;
     }
 }

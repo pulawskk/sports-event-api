@@ -1,7 +1,9 @@
 package com.pulawskk.sportseventapi.service;
 
+import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -22,4 +24,6 @@ public interface GameService {
     void deleteById(Long id);
 
     void delete(Game game);
+
+    Set<Game> findAllGeneratedGamesForCompetition(Long competitionId);
 }

@@ -1,9 +1,12 @@
 package com.pulawskk.sportseventapi.service.impl;
 
+import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.ResultFootball;
 import com.pulawskk.sportseventapi.repository.ResultFootballRepository;
 import com.pulawskk.sportseventapi.service.ResultService;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 public class ResultFootballService implements ResultService {
@@ -28,5 +31,10 @@ public class ResultFootballService implements ResultService {
 
     public void deleteById(Long id) {
         resultFootballRepository.deleteById(id);
+    }
+
+    @Override
+    public Set<ResultFootball> findAllResultsForCompetition(Competition competition) {
+        return null;
     }
 }

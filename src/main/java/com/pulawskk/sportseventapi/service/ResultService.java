@@ -1,7 +1,10 @@
 package com.pulawskk.sportseventapi.service;
 
+import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.ResultFootball;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 public interface ResultService {
@@ -13,4 +16,6 @@ public interface ResultService {
     void delete(ResultFootball resultFootball);
 
     void deleteById(Long id);
+
+    Set<ResultFootball> findAllResultsForCompetition(Competition competition);
 }
