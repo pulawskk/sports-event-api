@@ -18,7 +18,8 @@ import java.math.BigDecimal;
 public class Odd {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
+    @SequenceGenerator(name="new_generator", sequenceName = "odd_seq", initialValue = 13)
     private Long id;
 
     @Column(name = "type")
@@ -27,7 +28,7 @@ public class Odd {
     @Column(name = "value")
     private BigDecimal value;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToOne
     @JoinColumn(name = "games_id")
     private Game game;
 

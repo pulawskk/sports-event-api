@@ -3,6 +3,7 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
+import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.OddRepository;
 import com.pulawskk.sportseventapi.service.GameService;
@@ -86,13 +87,14 @@ public class GameServiceImpl implements GameService {
 
     public JSONObject generateJsonFromGame(Game game) {
         JSONObject jsonFromGame = new JSONObject();
-        JSONObject json = new JSONObject();
-        json.put("teamHome", game.getTeamHome().getName());
-        json.put("teamAway", game.getTeamAway().getName());
-        json.put("odds", game.getOdds());
-        json.put("gameStatus", game.getStatus().name());
-        Optional.ofNullable(game.getStartDate()).ifPresent(date -> json.put("startGame", date));
-        Optional.ofNullable(game.getEndDate()).ifPresent(date -> json.put("endGame", date));
+        jsonFromGame.put("teamHome", game.getTeamHome().getName());
+        jsonFromGame.put("teamAway", game.getTeamAway().getName());
+        jsonFromGame.put("oddsH", game.getOddByType(GameOddType.HOME_WIN).getValue());
+        jsonFromGame.put("oddsX", game.getOddByType(GameOddType.DRAW).getValue());
+        jsonFromGame.put("oddsA", game.getOddByType(GameOddType.AWAY_WIN).getValue());
+        jsonFromGame.put("gameStatus", game.getStatus().name());
+        Optional.ofNullable(game.getStartDate()).ifPresent(date -> jsonFromGame.put("startGame", date));
+        Optional.ofNullable(game.getEndDate()).ifPresent(date -> jsonFromGame.put("endGame", date));
         return jsonFromGame;
     }
 }

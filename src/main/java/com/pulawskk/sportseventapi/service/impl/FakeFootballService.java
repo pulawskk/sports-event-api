@@ -79,7 +79,7 @@ public class FakeFootballService implements FakeService {
     @Override
     public Set<Game> generateOdds(Set<Game> games) {
         
-        Set<Game> calculatedOdds = games.stream().map(game -> {
+        games.forEach(game -> {
             Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
             oddH.setValue(generateRandomValueForOdds());
             Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
@@ -87,6 +87,9 @@ public class FakeFootballService implements FakeService {
             Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
             oddX.setValue(generateRandomValueForOdds());
             Set<Odd> odds = new HashSet<>();
+            oddH.setGame(game);
+            oddX.setGame(game);
+            oddA.setGame(game);
             odds.add(oddA);
             odds.add(oddX);
             odds.add(oddH);
@@ -97,20 +100,17 @@ public class FakeFootballService implements FakeService {
             oddH.setId(savedOddH.getId());
             oddX.setId(savedOddX.getId());
             game.setOdds(odds);
-            return game;
-        }).collect(Collectors.toSet());
+        });
 
         for(Game game : games) {
-            if(game.getId() != null) {
-                gameService.save(game);
-            } else {
+            if(game.getId() == null) {
                 Game savedGame = gameService.save(game);
                 game.setId(savedGame.getId());
             }
         }
         games.forEach(game -> gameService.save(game));
 
-        return calculatedOdds;
+        return games;
     }
 
     @Override
@@ -170,7 +170,6 @@ public class FakeFootballService implements FakeService {
         Competition competition = competitionService.findByName("Premier League");
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
-
-//        gamesWithOutOdds.forEach(game -> gameService.save(game));
+        generateOdds(gamesWithOutOdds);
     }
 }
