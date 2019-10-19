@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,13 +47,18 @@ public class GameServiceImpl implements GameService {
 
 
     public Game save(Game game) {
-        game.getOdds().forEach(odd -> {
-            if (oddRepository.findById(odd.getId()) == null) {
-                oddRepository.save(odd);
-            }
-        });
+//        game.getOdds().forEach(odd -> {
+//            if (oddRepository.findById(odd.getId()) == null) {
+//                oddRepository.save(odd);
+//            }
+//        });
 
         return gameRepository.save(game);
+    }
+
+    @Override
+    public Set<Game> saveAll(Set<Game> games) {
+        return (Set<Game>) gameRepository.saveAll(games);
     }
 
 
@@ -66,11 +72,13 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    @Transactional
     public Set<Game> findAllGeneratedGamesForCompetition(Long competitionId) {
         return gameRepository.findAllGeneratedGames(competitionId).stream().collect(Collectors.toSet());
     }
 
-    public List<JSONObject> generateGames(Long competitionId) throws JSONException {
+    @Transactional
+    public List<JSONObject> generateJsonForInplayGames(Long competitionId) throws JSONException {
         Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
         List<JSONObject> generatedGames = new ArrayList<>();
 

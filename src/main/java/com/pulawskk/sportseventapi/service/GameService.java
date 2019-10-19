@@ -21,6 +21,8 @@ public interface GameService {
 
     Game save(Game game);
 
+    Set<Game> saveAll(Set<Game> games);
+
     void deleteById(Long id);
 
     void delete(Game game);
