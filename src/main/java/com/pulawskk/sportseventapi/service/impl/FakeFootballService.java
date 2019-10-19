@@ -165,7 +165,7 @@ public class FakeFootballService implements FakeService {
         return new BigDecimal(numberString);
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(cron = "0/20 * * * * ?")
     void generateGamesForCompetition() {
         Competition competition = competitionService.findByName("Premier League");
 
