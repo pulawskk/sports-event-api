@@ -25,4 +25,9 @@ public class SportsEventApiController {
     public String apiEventsGeneratedGames(@PathVariable("competitionId") Long competitionId) {
         return gameService.generateJsonForInplayGames(competitionId).toString();
     }
+
+    @GetMapping(value = "/results")
+    public String apiEventsResultedGames() {
+        return resultFootballService.generateJsonForAllResultedGames().toString();
+    }
 }

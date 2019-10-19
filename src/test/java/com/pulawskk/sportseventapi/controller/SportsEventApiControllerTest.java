@@ -150,14 +150,14 @@ class SportsEventApiControllerTest {
                 .andExpect(status().isOk());
     }
 
-//    @Test
-//    void shouldReturnJsonWithResults_whenEnterApiEventsResults() throws Exception {
-//        when(resultFootballService.findAllResultsForCompetition(any())).thenReturn(results);
-//
-//        mockMvc.perform(get("/api/events/{competitionsId}/results")
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(header().string("Location", "api/events/1/results"))
-//                .andExpect(jsonPath("$.id").value(1L));
-//    }
+    @Test
+    void shouldReturnJsonWithResults_whenEnterApiEventsResults() throws Exception {
+        when(resultFootballService.findAllResultsForCompetition(any())).thenReturn(results);
+
+        mockMvc.perform(get("/api/events/results")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
+                .andExpect(status().isOk());
+    }
 }
