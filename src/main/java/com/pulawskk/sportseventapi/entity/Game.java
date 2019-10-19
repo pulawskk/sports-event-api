@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +21,8 @@ import java.util.Set;
 public class Game {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
-    @SequenceGenerator(name="new_generator", sequenceName = "author_seq", initialValue = 5)
+    @SequenceGenerator(name="new_generator", sequenceName = "game_seq", initialValue = 5)
     private Long id;
 
     @ManyToOne
@@ -69,5 +69,14 @@ public class Game {
     public Game(Team teamHome, Team teamAway) {
         this.teamHome = teamHome;
         this.teamAway = teamAway;
+    }
+
+    public Odd getOddByType(GameOddType gameOddType) {
+        for (Odd odd : odds) {
+            if(odd.getType().name() == gameOddType.name()) {
+                return odd;
+            }
+        }
+        return null;
     }
 }
