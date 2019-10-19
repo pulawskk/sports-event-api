@@ -60,13 +60,9 @@ public class FakeFootballService implements FakeService {
             return;
         });
 
-        generatedGames.forEach(game -> {
-            Game savedGame = gameService.save(game);
-            game.setId(savedGame.getId());
-            return;
-        });
+        Set<Game> savedGames = gameService.saveAll(generatedGames);
 
-        return generatedGames;
+        return savedGames;
     }
 
     List<Integer> generatePairs(Competition competition) {
@@ -105,16 +101,10 @@ public class FakeFootballService implements FakeService {
             game.setOdds(odds);
         });
 
-        for(Game game : games) {
-            if(game.getId() == null) {
-                Game savedGame = gameService.save(game);
-                game.setId(savedGame.getId());
-            }
-        }
         games.forEach(game -> {
             game.setStatus(GameStatus.PREMATCH);
-            gameService.save(game);
         });
+        gameService.saveAll(games);
 
         return games;
     }

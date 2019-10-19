@@ -58,7 +58,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Set<Game> saveAll(Set<Game> games) {
-        return (Set<Game>) gameRepository.saveAll(games);
+        return gameRepository.saveAll(games).stream().collect(Collectors.toSet());
     }
 
 
