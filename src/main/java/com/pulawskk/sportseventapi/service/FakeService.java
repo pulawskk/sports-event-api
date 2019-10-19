@@ -11,7 +11,7 @@ public interface FakeService {
 
     Set<Game> generateOdds(Set<Game> games);
 
-    Set<ResultFootball> generateResult(Set<Game> games);
+    Set<ResultFootball> generateResults(Set<Game> games);
 
     GameReportFootball generateReportFootball(Game game);
 }

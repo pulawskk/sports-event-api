@@ -114,19 +114,21 @@ public class FakeFootballService implements FakeService {
     }
 
     @Override
-    public Set<ResultFootball> generateResult(Set<Game> games) {
+    public Set<ResultFootball> generateResults(Set<Game> games) {
         Set<ResultFootball> results = new HashSet<>();
 
         if(games != null) {
             for (Game game : games) {
-                game.setStatus(GameStatus.RESULTED);
-                gameService.save(game);
                 ResultFootball resultFootball = ResultFootball.builder()
                         .game(game)
                         .gameReportFootball(generateReportFootball(game))
                         .build();
                 ResultFootball resultFootballSaved = resultFootballService.save(resultFootball);
                 resultFootball.setId(resultFootballSaved.getId());
+                game.setResultFootball(resultFootball);
+                game.setStatus(GameStatus.RESULTED);
+                gameService.save(game);
+
                 results.add(resultFootball);
             }
         }
@@ -165,11 +167,28 @@ public class FakeFootballService implements FakeService {
         return new BigDecimal(numberString);
     }
 
-    @Scheduled(cron = "0/20 * * * * ?")
+    @Scheduled(cron = "5/20 * * * * ?")
     void generateGamesForCompetition() {
         Competition competition = competitionService.findByName("Premier League");
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
         generateOdds(gamesWithOutOdds);
+    }
+
+    @Scheduled(cron = "15/20 * * * * ?")
+    void generateResultsForInplayGamesForCompetition() {
+        Competition competition = competitionService.findByName("Premier League");
+        Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
+
+//        inplayGames.forEach(game -> {
+//            GameReportFootball gameReportFootball = generateReportFootball(game);
+//            GameReportFootball savedReport = gameReportFootballService.save(gameReportFootball);
+//            gameReportFootball.setId(savedReport.getId());
+//
+//            game.setStatus(GameStatus.RESULTED);
+//        });
+
+        Set<ResultFootball> results = generateResults(inplayGames);
+
     }
 }

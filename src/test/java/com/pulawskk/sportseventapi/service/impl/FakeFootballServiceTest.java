@@ -129,7 +129,7 @@ class FakeFootballServiceTest {
 
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
         Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
-        Set<ResultFootball> result = fakeFootballService.generateResult(gamesWithOdds);
+        Set<ResultFootball> result = fakeFootballService.generateResults(gamesWithOdds);
 
         assertAll(() -> {
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
