@@ -7,14 +7,12 @@ import com.pulawskk.sportseventapi.service.impl.GameReportFootballFootballServic
 import com.pulawskk.sportseventapi.service.impl.GameServiceImpl;
 import com.pulawskk.sportseventapi.service.impl.ResultFootballService;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -143,7 +141,7 @@ class SportsEventApiControllerTest {
         gamesWithOdds.forEach(game -> {
             jsonGames.add(gameService.generateJsonFromGame(game));
         });
-        when(gameService.generateGames(anyLong())).thenReturn(jsonGames);
+        when(gameService.generateJsonForInplayGames(anyLong())).thenReturn(jsonGames);
 
         mockMvc.perform(get("/api/events/1/games")
                 .accept(MediaType.APPLICATION_JSON))

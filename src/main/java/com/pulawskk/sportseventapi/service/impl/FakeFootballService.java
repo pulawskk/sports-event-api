@@ -7,6 +7,7 @@ import com.pulawskk.sportseventapi.service.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class FakeFootballService implements FakeService {
     }
 
     @Override
+    @Transactional
     public Set<Game> generateGames(Competition competition) {
         List<Integer> orderPairs = generatePairs(competition);
 
@@ -50,7 +52,7 @@ public class FakeFootballService implements FakeService {
         generatedGames.forEach(game -> {
             Team teamA = teams.iterator().next();
             game.setTeamAway(teamA);
-            game.setStatus(GameStatus.PREMATCH);
+            game.setStatus(GameStatus.CREATED);
             game.setStartDate(null);
             game.setEndDate(null);
             game.setCompetition(competition);
@@ -77,6 +79,7 @@ public class FakeFootballService implements FakeService {
     }
 
     @Override
+    @Transactional
     public Set<Game> generateOdds(Set<Game> games) {
         
         games.forEach(game -> {
@@ -108,7 +111,10 @@ public class FakeFootballService implements FakeService {
                 game.setId(savedGame.getId());
             }
         }
-        games.forEach(game -> gameService.save(game));
+        games.forEach(game -> {
+            game.setStatus(GameStatus.PREMATCH);
+            gameService.save(game);
+        });
 
         return games;
     }
