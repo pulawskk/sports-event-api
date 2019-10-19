@@ -18,6 +18,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     List<Game> findAllByTeamHome(Team team);
 
-    @Query(value = "SELECT * FROM games WHERE competition_id = ?1 AND status = 0", nativeQuery = true)
+    @Query(value = "SELECT * FROM games WHERE competition_id = ?1 AND status = 1", nativeQuery = true)
     List<Game> findAllGeneratedGames(Long competitionId);
 }
