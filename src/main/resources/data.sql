@@ -71,7 +71,7 @@ insert into game_reports_football(id, goal_home, goal_away, corner_home, corner_
                 (4, 3, 0, 5, 4, 2, 5, 3, 6, 5, 1);
 
 insert into results_football(id, game_id, game_report_id) values (1, 1, 1),
-                                                                 (2, 1, 1),
-                                                                 (3, 1, 1),
-                                                                 (4, 1, 1);
+                                                                 (2, 2, 2),
+                                                                 (3, 3, 3),
+                                                                 (4, 4, 4);
 

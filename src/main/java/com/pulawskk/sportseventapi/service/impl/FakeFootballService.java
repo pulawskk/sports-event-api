@@ -120,14 +120,14 @@ public class FakeFootballService implements FakeService {
         if(games != null) {
             for (Game game : games) {
                 ResultFootball resultFootball = ResultFootball.builder()
+                        .id(game.getId())
                         .game(game)
                         .gameReportFootball(generateReportFootball(game))
                         .build();
-                ResultFootball resultFootballSaved = resultFootballService.save(resultFootball);
-                resultFootball.setId(resultFootballSaved.getId());
                 game.setResultFootball(resultFootball);
                 game.setStatus(GameStatus.RESULTED);
-                gameService.save(game);
+                ResultFootball resultFootballSaved = resultFootballService.save(resultFootball);
+                resultFootball.setId(resultFootballSaved.getId());
 
                 results.add(resultFootball);
             }
