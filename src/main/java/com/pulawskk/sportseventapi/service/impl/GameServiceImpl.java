@@ -1,6 +1,5 @@
 package com.pulawskk.sportseventapi.service.impl;
 
-import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
 import com.pulawskk.sportseventapi.enums.GameOddType;
@@ -47,12 +46,6 @@ public class GameServiceImpl implements GameService {
 
 
     public Game save(Game game) {
-//        game.getOdds().forEach(odd -> {
-//            if (oddRepository.findById(odd.getId()) == null) {
-//                oddRepository.save(odd);
-//            }
-//        });
-
         return gameRepository.save(game);
     }
 
