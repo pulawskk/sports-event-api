@@ -32,9 +32,10 @@ public class Competition {
     private Set<Team> teams = new HashSet<>();
 
     @Builder
-    public Competition(Long id, String name, Set<Team> teams) {
+    public Competition(Long id, String name, Set<Team> teams, CompetitionType type) {
         this.id = id;
         this.name = name;
+        this.type = type;
         if(teams != null) {
             this.teams = teams;
         }
