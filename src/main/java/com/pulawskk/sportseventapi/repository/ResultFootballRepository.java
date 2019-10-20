@@ -11,6 +11,7 @@ import java.util.Set;
 @Repository
 public interface ResultFootballRepository extends JpaRepository<ResultFootball, Long> {
 
-    @Query(value = "SELECT * FROM results_football WHERE competition_id = ?1 AND status = 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM results_football JOIN games ON results_football.game_id = games.id WHERE games.competition_id = ?1 AND status = 3", nativeQuery = true)
     Set<ResultFootball> findAllResultsForCompetition(Long competitionId);
+
 }

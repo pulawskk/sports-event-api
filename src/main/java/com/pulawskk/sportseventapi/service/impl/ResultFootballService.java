@@ -49,33 +49,13 @@ public class ResultFootballService implements ResultService {
     }
 
     @Transactional
-    public List<JSONObject> generateJsonForResultedGames(Long competitionId) {
-        //TODO at first it needs query
-        Set<ResultFootball> resultedGamesFromDb = resultFootballRepository.findAllResultsForCompetition(competitionId);
-        return null;
-    }
-
-    @Transactional
-    public List<JSONObject> generateJsonForAllResultedGames() {
+    public List<JSONObject> generateJsonForAllResults() {
         Set<ResultFootball> resultedGamesFromDb = resultFootballRepository.findAll().stream().collect(Collectors.toSet());
 
         List<JSONObject> jsonList = new ArrayList<>();
 
         resultedGamesFromDb.forEach(result -> {
-            JSONObject json = new JSONObject();
-            json.put("teamHome", result.getGame().getTeamHome().getName());
-            json.put("teamAway", result.getGame().getTeamAway().getName());
-            json.put("competition", result.getGame().getCompetition().getName());
-            json.put("homeScores", result.getGameReport().getGoalHome());
-            json.put("homeCorners", result.getGameReport().getCornerHome());
-            json.put("homeOffsides", result.getGameReport().getOffsideHome());
-            json.put("homeYellowCards", result.getGameReport().getYCardHome());
-            json.put("homeRedCards", result.getGameReport().getRCardHome());
-            json.put("awayScores", result.getGameReport().getGoalAway());
-            json.put("awayCorners", result.getGameReport().getCornerAway());
-            json.put("awayOffsides", result.getGameReport().getOffsideAway());
-            json.put("awayYellowCards", result.getGameReport().getYCardAway());
-            json.put("awayRedCards", result.getGameReport().getRCardAway());
+            JSONObject json = generateJsonFromResult(result);
             jsonList.add(json);
         });
 
@@ -83,6 +63,41 @@ public class ResultFootballService implements ResultService {
         jsonInfo.put("resultsNumber", resultedGamesFromDb.size());
         jsonList.add(jsonInfo);
 
+        return jsonList;
+    }
+
+    private JSONObject generateJsonFromResult(ResultFootball result) {
+        JSONObject json = new JSONObject();
+        json.put("teamHome", result.getGame().getTeamHome().getName());
+        json.put("teamAway", result.getGame().getTeamAway().getName());
+        json.put("competition", result.getGame().getCompetition().getName());
+        json.put("homeScores", result.getGameReport().getGoalHome());
+        json.put("homeCorners", result.getGameReport().getCornerHome());
+        json.put("homeOffsides", result.getGameReport().getOffsideHome());
+        json.put("homeYellowCards", result.getGameReport().getYCardHome());
+        json.put("homeRedCards", result.getGameReport().getRCardHome());
+        json.put("awayScores", result.getGameReport().getGoalAway());
+        json.put("awayCorners", result.getGameReport().getCornerAway());
+        json.put("awayOffsides", result.getGameReport().getOffsideAway());
+        json.put("awayYellowCards", result.getGameReport().getYCardAway());
+        json.put("awayRedCards", result.getGameReport().getRCardAway());
+        return json;
+    }
+
+    public List<JSONObject> generateJsonForResultsForCompetition(Long competitionId) {
+        Set<ResultFootball> resultsFootballsForCompetition = findAllResultsForCompetition(competitionId);
+
+        List<JSONObject> jsonList = new ArrayList<>();
+
+
+        if (resultsFootballsForCompetition != null) {
+            resultsFootballsForCompetition.forEach(result -> {
+                jsonList.add(generateJsonFromResult(result));
+            });
+        }
+        JSONObject jsonInfo = new JSONObject();
+        jsonInfo.put("gameNumbers", resultsFootballsForCompetition.size());
+        jsonList.add(jsonInfo);
         return jsonList;
     }
 }
