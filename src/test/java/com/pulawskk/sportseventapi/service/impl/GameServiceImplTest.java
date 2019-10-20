@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,7 +59,7 @@ class GameServiceImplTest {
         teams.add(arsenal);
         premierLeague.setTeams(teams);
 
-        chelseaVsArsenal = Game.builder().id(1L).competition(premierLeague).teamAway(arsenal).teamHome(chelsea).startDate(Calendar.getInstance()).endDate(Calendar.getInstance()).build();
+        chelseaVsArsenal = Game.builder().id(1L).competition(premierLeague).teamAway(arsenal).teamHome(chelsea).startDate(LocalDateTime.now()).endDate(LocalDateTime.now()).build();
 
         chelseaOdd = Odd.builder().id(1L).type(GameOddType.HOME_WIN).game(chelseaVsArsenal).value(new BigDecimal("1.5")).build();
         arsenalOdd = Odd.builder().id(2L).type(GameOddType.AWAY_WIN).game(chelseaVsArsenal).value(new BigDecimal("3.0")).build();
@@ -89,7 +90,7 @@ class GameServiceImplTest {
         Team newcastle = Team.builder().id(3L).name("Newcastle").build();
         newcastle.addCompetition(premierLeague);
 
-        Game newcastleVsChelsea = Game.builder().id(2L).teamHome(newcastle).teamAway(chelsea).competition(premierLeague).startDate(Calendar.getInstance()).endDate(Calendar.getInstance()).build();
+        Game newcastleVsChelsea = Game.builder().id(2L).teamHome(newcastle).teamAway(chelsea).competition(premierLeague).startDate(LocalDateTime.now()).endDate(LocalDateTime.now()).build();
 
         Odd newcastleOdd = Odd.builder().id(4L).type(GameOddType.HOME_WIN).value(new BigDecimal("5.0")).game(newcastleVsChelsea).build();
         Odd drawOdd = Odd.builder().id(5L).type(GameOddType.DRAW).value(new BigDecimal("3.2")).game(newcastleVsChelsea).build();
@@ -107,7 +108,7 @@ class GameServiceImplTest {
 
         when(gameRepository.findAllByTeamAwayOrTeamHome(any())).thenReturn(new ArrayList<>(games));
 
-        Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamAwayOrTeamHome(chelsea.getId()));
+        Set<Game> gamesFromDb = new HashSet<>(gameServiceImpl.findAllByTeamAwayOrTeamHome(chelsea.getId()));
 
         assertAll(() -> {
             assertThat(gamesFromDb, hasSize(2));
@@ -121,7 +122,7 @@ class GameServiceImplTest {
         specificTeam.add(chelseaVsArsenal);
         when(gameRepository.findAllByTeamHome(any())).thenReturn(specificTeam);
 
-        Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamHome(chelsea));
+        Set<Game> gamesFromDb = new HashSet<>(gameServiceImpl.findAllByTeamHome(chelsea));
 
         assertAll(() -> {
             assertThat(gamesFromDb, hasSize(1));
@@ -135,7 +136,7 @@ class GameServiceImplTest {
         specificTeam.add(chelseaVsArsenal);
         when(gameRepository.findAllByTeamAway(any())).thenReturn(specificTeam);
 
-        Set<Game> gamesFromDb = new HashSet<Game>(gameServiceImpl.findAllByTeamAway(arsenal));
+        Set<Game> gamesFromDb = new HashSet<>(gameServiceImpl.findAllByTeamAway(arsenal));
 
         assertAll(() -> {
             assertThat(gamesFromDb, hasSize(1));

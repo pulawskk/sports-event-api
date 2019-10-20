@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -58,8 +58,8 @@ class ResultFootballServiceTest {
         teams.add(arsenal);
         premierLeague.setTeams(teams);
 
-        chelseaVsArsenal = Game.builder().id(1L).competition(premierLeague).teamAway(arsenal).teamHome(chelsea).startDate(Calendar.getInstance()).endDate(Calendar.getInstance()).build();
 
+        chelseaVsArsenal = Game.builder().id(1L).competition(premierLeague).teamAway(arsenal).teamHome(chelsea).startDate(LocalDateTime.now()).endDate(LocalDateTime.now()).build();
         chelseaOdd = Odd.builder().id(1L).type(GameOddType.HOME_WIN).game(chelseaVsArsenal).value(new BigDecimal("1.5")).build();
         arsenalOdd = Odd.builder().id(2L).type(GameOddType.AWAY_WIN).game(chelseaVsArsenal).value(new BigDecimal("3.0")).build();
         drawOdd = Odd.builder().id(3L).type(GameOddType.DRAW).game(chelseaVsArsenal).value(new BigDecimal("4.5")).build();

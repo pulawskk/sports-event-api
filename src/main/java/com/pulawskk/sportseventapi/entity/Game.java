@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,10 +38,10 @@ public class Game {
     private Competition competition;
 
     @Column(name = "start_date")
-    private Calendar startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
-    private Calendar endDate;
+    private LocalDateTime endDate;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
     private Set<Odd> odds = new HashSet<>();
@@ -53,7 +53,7 @@ public class Game {
     private GameStatus status;
 
     @Builder
-    public Game(Long id, Team teamHome, Team teamAway, Competition competition, Calendar startDate, Calendar endDate, Set<Odd> odds, GameStatus status) {
+    public Game(Long id, Team teamHome, Team teamAway, Competition competition, LocalDateTime startDate, LocalDateTime endDate, Set<Odd> odds, GameStatus status) {
         this.id = id;
         this.teamAway = teamAway;
         this.teamHome = teamHome;
