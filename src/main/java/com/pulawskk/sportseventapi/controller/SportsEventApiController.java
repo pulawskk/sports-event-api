@@ -22,12 +22,17 @@ public class SportsEventApiController {
     }
 
     @GetMapping(value = "/{competitionId}/games")
-    public String apiEventsGeneratedGames(@PathVariable("competitionId") Long competitionId) {
-        return gameService.generateJsonForInplayGames(competitionId).toString();
+    public String apiEventsGeneratedGamesForCompetition(@PathVariable("competitionId") Long competitionId) {
+        return gameService.generateJsonForInplayGamesForCompetition(competitionId).toString();
     }
 
     @GetMapping(value = "/results")
     public String apiEventsResultedGames() {
-        return resultFootballService.generateJsonForAllResultedGames().toString();
+        return resultFootballService.generateJsonForAllResults().toString();
+    }
+
+    @GetMapping(value = "/{competitionId}/results")
+    public String apiEventsResultedGamesForCompetition(@PathVariable("competitionId") Long competitionId) {
+        return resultFootballService.generateJsonForResultsForCompetition(competitionId).toString();
     }
 }

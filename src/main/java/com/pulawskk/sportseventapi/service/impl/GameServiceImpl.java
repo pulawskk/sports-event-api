@@ -71,7 +71,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Transactional
-    public List<JSONObject> generateJsonForInplayGames(Long competitionId) throws JSONException {
+    public List<JSONObject> generateJsonForInplayGamesForCompetition(Long competitionId) throws JSONException {
         Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
         List<JSONObject> generatedGames = new ArrayList<>();
 

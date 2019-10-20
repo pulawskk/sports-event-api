@@ -135,13 +135,13 @@ class SportsEventApiControllerTest {
     }
 
     @Test
-    void shouldReturnJsonWithGames_whenEnterApiEventsGames() throws Exception {
+    void shouldReturnJsonWithGames_whenPrematchGamesForExistCompetition() throws Exception {
         List<JSONObject> jsonGames = new ArrayList<>();
 
         gamesWithOdds.forEach(game -> {
             jsonGames.add(gameService.generateJsonFromGame(game));
         });
-        when(gameService.generateJsonForInplayGames(anyLong())).thenReturn(jsonGames);
+        when(gameService.generateJsonForInplayGamesForCompetition(anyLong())).thenReturn(jsonGames);
 
         mockMvc.perform(get("/api/events/1/games")
                 .accept(MediaType.APPLICATION_JSON))
@@ -155,6 +155,17 @@ class SportsEventApiControllerTest {
         when(resultFootballService.findAllResultsForCompetition(any())).thenReturn(results);
 
         mockMvc.perform(get("/api/events/results")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnJsonWithResults_whenEnterApiEventsResultsForCompetition() throws Exception {
+        when(resultFootballService.findAllResultsForCompetition(any())).thenReturn(results);
+
+        mockMvc.perform(get("/api/events/1/results")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
