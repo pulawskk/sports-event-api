@@ -163,7 +163,7 @@ public class FakeFootballService implements FakeService {
     }
 
     @Scheduled(cron = "5/20 * * * * ?")
-    void generateGamesForCompetition() {
+    void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
@@ -171,19 +171,10 @@ public class FakeFootballService implements FakeService {
     }
 
     @Scheduled(cron = "15/20 * * * * ?")
-    void generateResultsForInplayGamesForCompetition() {
+    void generateResultsForInplayGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
-//        inplayGames.forEach(game -> {
-//            GameReportFootball gameReportFootball = generateReportFootball(game);
-//            GameReportFootball savedReport = gameReportFootballService.save(gameReportFootball);
-//            gameReportFootball.setId(savedReport.getId());
-//
-//            game.setStatus(GameStatus.RESULTED);
-//        });
-
-        Set<ResultFootball> results = generateResults(inplayGames);
-
+        generateResults(inplayGames);
     }
 }
