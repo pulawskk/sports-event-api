@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -52,8 +53,8 @@ public class FakeFootballService implements FakeService {
         generatedGames.forEach(game -> {
             Team teamA = teams.iterator().next();
             game.setTeamAway(teamA);
-            game.setStartDate(null);
-            game.setEndDate(null);
+            game.setStartDate(LocalDateTime.now());
+            game.setEndDate(LocalDateTime.now());
             game.setCompetition(competition);
             teams.remove(teamA);
             return;
