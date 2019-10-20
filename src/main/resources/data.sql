@@ -19,7 +19,7 @@ insert into teams(id, name) values (1, 'Chelsea'),
                                    (19, 'Bournemouth'),
                                    (20, 'Burnley');
 
-insert into competitions(id, name) values (1, 'Premier League');
+insert into competitions(id, name, type) values (1, 'Premier League', 0);
 
 insert into team_competition(teams_id, competitions_id) values (1,1),
                                                                (2, 1),

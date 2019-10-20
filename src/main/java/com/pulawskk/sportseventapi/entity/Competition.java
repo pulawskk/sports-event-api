@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.pulawskk.sportseventapi.enums.CompetitionType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,9 @@ public class Competition {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "type")
+    private CompetitionType type;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "competitions", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private Set<Team> teams = new HashSet<>();
