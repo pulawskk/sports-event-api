@@ -74,14 +74,10 @@ class FakeFootballServiceTest {
     @Test
     void shouldReturnSetOfGamesTwiceLess_whenCompetitionHasEvenNumberOfTeams() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
-        Set<Game> gamesForSaved = new HashSet<>();
-        LongStream.iterate(1, n -> n+1).limit(10)
-                .forEach(n -> gamesForSaved.add(Game.builder()
-                        .id(Long.valueOf(n))
-                        .status(GameStatus.CREATED)
-                        .competition(competition)
-                        .build()));
-        when(gameService.saveAll(anySet())).thenReturn(gamesForSaved);
+        Game gameForSaved = Game.builder().id(1L).build();
+
+        when(gameService.save(any())).thenReturn(gameForSaved);
+        when(gameService.saveAll(anySet())).thenReturn(anySet());
 
         Set<Game> games = fakeFootballService.generateGames(competition);
 
@@ -90,7 +86,6 @@ class FakeFootballServiceTest {
             assertThat(games.iterator().next().getResultFootball(), is(nullValue()));
             assertThat(games.iterator().next().getStatus(), is(GameStatus.CREATED));
             assertThat(games.iterator().next().getCompetition(), is(competition));
-            assertThat(games.containsAll(gamesForSaved), notNullValue());
         });
     }
 
@@ -125,6 +120,7 @@ class FakeFootballServiceTest {
         Game gameForSave = Game.builder().id(1L).build();
         Set<Game> gamesForSave = new HashSet<>();
         gamesForSave.add(gameForSave);
+        when(gameService.save(any())).thenReturn(gameForSave);
         when(gameService.saveAll(anySet())).thenReturn(gamesForSave);
 
         Odd oddForSave = Odd.builder().id(1L).build();
@@ -143,6 +139,8 @@ class FakeFootballServiceTest {
         Set<ResultFootball> result = fakeFootballService.generateResults(gamesWithOdds);
 
         assertAll(() -> {
+            assertThat(gamesWithOdds, hasSize(10));
+            assertThat(result, hasSize(gamesWithOdds.size()));
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
             assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
         });

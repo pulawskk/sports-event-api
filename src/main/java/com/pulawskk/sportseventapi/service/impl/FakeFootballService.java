@@ -52,7 +52,6 @@ public class FakeFootballService implements FakeService {
         generatedGames.forEach(game -> {
             Team teamA = teams.iterator().next();
             game.setTeamAway(teamA);
-            game.setStatus(GameStatus.CREATED);
             game.setStartDate(null);
             game.setEndDate(null);
             game.setCompetition(competition);
@@ -60,9 +59,14 @@ public class FakeFootballService implements FakeService {
             return;
         });
 
-        Set<Game> savedGames = gameService.saveAll(generatedGames);
+        generatedGames.forEach(game -> {
+            Game savedGame = gameService.save(game);
+            game.setId(savedGame.getId());
+            game.setStatus(GameStatus.CREATED);
+        });
 
-        return savedGames;
+        gameService.saveAll(generatedGames);
+        return generatedGames;
     }
 
     List<Integer> generatePairs(Competition competition) {
