@@ -203,7 +203,12 @@ public class FakeFootballService implements FakeService {
         if (gamesWithOutOdds.size() == 0) {
             return;
         }
-        generateOdds(gamesWithOutOdds);
+        Optional.ofNullable(gamesWithOutOdds.size()).ifPresent(s -> {
+            if(s > 0) {
+                generateOdds(gamesWithOutOdds);
+            }
+        });
+
     }
 
     @Scheduled(cron = "15/20 * * * * ?")
@@ -211,9 +216,10 @@ public class FakeFootballService implements FakeService {
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
-        if (inplayGames.size() == 0) {
-            return;
-        }
-        generateResults(inplayGames);
+        Optional.ofNullable(inplayGames.size()).ifPresent(s -> {
+            if(s > 0) {
+                generateResults(inplayGames);
+            }
+        });
     }
 }
