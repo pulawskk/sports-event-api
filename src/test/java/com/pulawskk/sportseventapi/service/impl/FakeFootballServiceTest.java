@@ -1,6 +1,7 @@
 package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.*;
+import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;

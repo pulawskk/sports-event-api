@@ -1,6 +1,7 @@
 package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.*;
+import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
@@ -125,12 +126,30 @@ public class FakeFootballService implements FakeService {
                         .game(game)
                         .gameReportFootball(generateReportFootball(game))
                         .build();
+                if(game.getCompetition().getType() == CompetitionType.TOURNAMENT_ROUNDS) {
+                    int goalHome = resultFootball.getGameReport().getGoalHome();
+                    int goalAway = resultFootball.getGameReport().getGoalAway();
+                    Team lostTeam = null;
+                    if (goalHome > goalAway) {
+                        lostTeam = teamService.findByName(game.getTeamAway().getName());
+                        lostTeam.getCompetitions().remove(game.getCompetition());
+                    } else if(goalAway > goalHome) {
+                        lostTeam = teamService.findByName(game.getTeamHome().getName());
+                        lostTeam.getCompetitions().remove(game.getCompetition());
+                    } else if(goalHome == goalAway) {
+                        resultFootball.getGameReport().setGoalHome(goalHome + 1);
+                        lostTeam = teamService.findByName(game.getTeamAway().getName());
+                        lostTeam.getCompetitions().remove(game.getCompetition());
+                    }
+                    teamService.save(lostTeam);
+                }
                 game.setResultFootball(resultFootball);
                 game.setStatus(GameStatus.RESULTED);
 
                 results.add(resultFootball);
             }
         }
+
         resultFootballService.saveAll(results);
         return results;
     }
