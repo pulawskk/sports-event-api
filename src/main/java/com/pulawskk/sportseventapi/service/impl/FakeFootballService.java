@@ -42,9 +42,13 @@ public class FakeFootballService implements FakeService {
 
         Set<Game> generatedGames = new HashSet<>();
 
-        Set<Team> teams = teamService.findAllByCompetitions(competition).stream().collect(Collectors.toSet());
-
         int gamesNumber = competition.getTeams().size()/2;
+
+        if(gamesNumber == 0) {
+            return generatedGames;
+        }
+
+        Set<Team> teams = teamService.findAllByCompetitions(competition).stream().collect(Collectors.toSet());
 
         while (generatedGames.size() < gamesNumber) {
             Team teamH = teams.iterator().next();
@@ -84,34 +88,35 @@ public class FakeFootballService implements FakeService {
     @Override
     @Transactional
     public Set<Game> generateOdds(Set<Game> games) {
-        
-        games.forEach(game -> {
-            Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
-            oddH.setValue(generateRandomValueForOdds());
-            Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
-            oddA.setValue(generateRandomValueForOdds());
-            Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
-            oddX.setValue(generateRandomValueForOdds());
-            Set<Odd> odds = new HashSet<>();
-            oddH.setGame(game);
-            oddX.setGame(game);
-            oddA.setGame(game);
-            odds.add(oddA);
-            odds.add(oddX);
-            odds.add(oddH);
-            Odd savedOddA = oddService.save(oddA);
-            Odd savedOddX = oddService.save(oddX);
-            Odd savedOddH = oddService.save(oddH);
-            oddA.setId(savedOddA.getId());
-            oddH.setId(savedOddH.getId());
-            oddX.setId(savedOddX.getId());
-            game.setOdds(odds);
-        });
+        if (games != null && games.size() > 0) {
+            games.forEach(game -> {
+                Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
+                oddH.setValue(generateRandomValueForOdds());
+                Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
+                oddA.setValue(generateRandomValueForOdds());
+                Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
+                oddX.setValue(generateRandomValueForOdds());
+                Set<Odd> odds = new HashSet<>();
+                oddH.setGame(game);
+                oddX.setGame(game);
+                oddA.setGame(game);
+                odds.add(oddA);
+                odds.add(oddX);
+                odds.add(oddH);
+                Odd savedOddA = oddService.save(oddA);
+                Odd savedOddX = oddService.save(oddX);
+                Odd savedOddH = oddService.save(oddH);
+                oddA.setId(savedOddA.getId());
+                oddH.setId(savedOddH.getId());
+                oddX.setId(savedOddX.getId());
+                game.setOdds(odds);
+            });
 
-        games.forEach(game -> {
-            game.setStatus(GameStatus.PREMATCH);
-        });
-        gameService.saveAll(games);
+            games.forEach(game -> {
+                game.setStatus(GameStatus.PREMATCH);
+            });
+            gameService.saveAll(games);
+        }
 
         return games;
     }
@@ -120,7 +125,7 @@ public class FakeFootballService implements FakeService {
     public Set<ResultFootball> generateResults(Set<Game> games) {
         Set<ResultFootball> results = new HashSet<>();
 
-        if(games != null) {
+        if(games != null && games.size() > 0) {
             for (Game game : games) {
                 ResultFootball resultFootball = ResultFootball.builder()
                         .id(game.getId())
@@ -195,6 +200,9 @@ public class FakeFootballService implements FakeService {
         Competition competition = competitionService.findByName("FA Cup");
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
+        if (gamesWithOutOdds.size() == 0) {
+            return;
+        }
         generateOdds(gamesWithOutOdds);
     }
 
@@ -203,6 +211,9 @@ public class FakeFootballService implements FakeService {
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
+        if (inplayGames.size() == 0) {
+            return;
+        }
         generateResults(inplayGames);
     }
 }
