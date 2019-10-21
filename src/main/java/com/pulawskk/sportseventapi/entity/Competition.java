@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Setter
@@ -48,5 +49,13 @@ public class Competition {
         if(newTeam != null) {
             this.teams.add(newTeam);
         }
+    }
+
+    public void removeTeamByName(String teamName) {
+        Optional<Team> team = teams.stream()
+                .filter(t -> t.getName().equals(teamName))
+                .findAny();
+        Team teamToRemove = team.orElseGet(null);
+        teams.remove(teamToRemove);
     }
 }

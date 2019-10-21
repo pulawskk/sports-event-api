@@ -43,9 +43,9 @@ public class FakeFootballService implements FakeService {
 
         Set<Team> teams = teamService.findAllByCompetitions(competition).stream().collect(Collectors.toSet());
 
-        int teamNumber = competition.getTeams().size()/2;
+        int gamesNumber = competition.getTeams().size()/2;
 
-        while (generatedGames.size() < teamNumber) {
+        while (generatedGames.size() < gamesNumber) {
             Team teamH = teams.iterator().next();
             generatedGames.add(Game.builder().teamHome(teamH).build());
             teams.remove(teamH);
@@ -132,17 +132,20 @@ public class FakeFootballService implements FakeService {
                     Team lostTeam = null;
                     if (goalHome > goalAway) {
                         lostTeam = teamService.findByName(game.getTeamAway().getName());
-                        lostTeam.getCompetitions().remove(game.getCompetition());
                     } else if(goalAway > goalHome) {
                         lostTeam = teamService.findByName(game.getTeamHome().getName());
-                        lostTeam.getCompetitions().remove(game.getCompetition());
                     } else if(goalHome == goalAway) {
                         resultFootball.getGameReport().setGoalHome(goalHome + 1);
                         lostTeam = teamService.findByName(game.getTeamAway().getName());
-                        lostTeam.getCompetitions().remove(game.getCompetition());
                     }
+
+                    Competition competition = game.getCompetition();
+                    lostTeam.removeCompetitionByName(competition.getName());
                     teamService.save(lostTeam);
+                    competition.removeTeamByName(lostTeam.getName());
+                    competitionService.save(competition);
                 }
+
                 game.setResultFootball(resultFootball);
                 game.setStatus(GameStatus.RESULTED);
 
@@ -188,7 +191,7 @@ public class FakeFootballService implements FakeService {
 
     @Scheduled(cron = "5/20 * * * * ?")
     void generateGamesForPremierLeague() {
-        Competition competition = competitionService.findByName("Premier League");
+        Competition competition = competitionService.findByName("FA Cup");
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
         generateOdds(gamesWithOutOdds);
@@ -196,7 +199,7 @@ public class FakeFootballService implements FakeService {
 
     @Scheduled(cron = "15/20 * * * * ?")
     void generateResultsForInplayGamesForPremierLeague() {
-        Competition competition = competitionService.findByName("Premier League");
+        Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
         generateResults(inplayGames);

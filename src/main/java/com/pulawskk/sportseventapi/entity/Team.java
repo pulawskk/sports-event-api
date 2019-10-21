@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Setter
@@ -24,7 +25,7 @@ public class Team {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "team_competition",
             joinColumns = {@JoinColumn(name = "teams_id")},
@@ -52,5 +53,13 @@ public class Team {
 
     public Team(String name) {
         this.name = name;
+    }
+
+    public void removeCompetitionByName(String name) {
+        Optional<Competition> competition = competitions.stream()
+                .filter(comp -> comp.getName().equals(name))
+                .findAny();
+        Competition competitionToRemove = competition.orElseGet(null);
+        competitions.remove(competitionToRemove);
     }
 }
