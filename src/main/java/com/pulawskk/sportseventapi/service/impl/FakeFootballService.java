@@ -5,11 +5,18 @@ import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
@@ -212,7 +219,24 @@ public class FakeFootballService implements FakeService {
     }
 
     @Scheduled(cron = "15/20 * * * * ?")
-    void generateResultsForInplayGamesForPremierLeague() {
+    void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        Connection connection = connectionFactory.newConnection();
+        Channel channel = connection.createChannel();
+
+        String uri = System.getenv("CLOUDAMPQ_URL");
+        if (uri == null) {
+            connectionFactory.setUsername("guest");
+            connectionFactory.setPassword("guest");
+            connectionFactory.setHost("15672");
+        } else {
+            connectionFactory.setUri(uri);
+        }
+        channel.queueDeclare("products_queue", false, false, false, null);
+        channel.basicPublish("", "products_queue", null, "product_message".getBytes());
+        channel.close();
+        connection.close();
+
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
