@@ -18,7 +18,6 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -215,23 +214,16 @@ public class FakeFootballService implements FakeService {
                 generateOdds(gamesWithOutOdds);
             }
         });
-
     }
 
     @Scheduled(cron = "15/20 * * * * ?")
     void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
         ConnectionFactory connectionFactory = new ConnectionFactory();
+        String uri = "amqp://mxddlpbm:3nP42tVOl_XbgGvhODI8nIu4GdAPXB2g@golden-kangaroo.rmq.cloudamqp.com/mxddlpbm";
+        connectionFactory.setUri(uri);
         Connection connection = connectionFactory.newConnection();
         Channel channel = connection.createChannel();
 
-        String uri = System.getenv("CLOUDAMPQ_URL");
-        if (uri == null) {
-            connectionFactory.setUsername("guest");
-            connectionFactory.setPassword("guest");
-            connectionFactory.setHost("15672");
-        } else {
-            connectionFactory.setUri(uri);
-        }
         channel.queueDeclare("products_queue", false, false, false, null);
         channel.basicPublish("", "products_queue", null, "product_message".getBytes());
         channel.close();
