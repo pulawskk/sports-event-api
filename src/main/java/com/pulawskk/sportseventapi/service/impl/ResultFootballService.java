@@ -67,24 +67,6 @@ public class ResultFootballService implements ResultService, JsonUtil {
         return jsonList;
     }
 
-//    private JSONObject generateJsonFromResult(ResultFootball result) {
-//        JSONObject json = new JSONObject();
-//        json.put("teamHome", result.getGame().getTeamHome().getName());
-//        json.put("teamAway", result.getGame().getTeamAway().getName());
-//        json.put("competition", result.getGame().getCompetition().getName());
-//        json.put("homeScores", result.getGameReport().getGoalHome());
-//        json.put("homeCorners", result.getGameReport().getCornerHome());
-//        json.put("homeOffsides", result.getGameReport().getOffsideHome());
-//        json.put("homeYellowCards", result.getGameReport().getYCardHome());
-//        json.put("homeRedCards", result.getGameReport().getRCardHome());
-//        json.put("awayScores", result.getGameReport().getGoalAway());
-//        json.put("awayCorners", result.getGameReport().getCornerAway());
-//        json.put("awayOffsides", result.getGameReport().getOffsideAway());
-//        json.put("awayYellowCards", result.getGameReport().getYCardAway());
-//        json.put("awayRedCards", result.getGameReport().getRCardAway());
-//        return json;
-//    }
-
     public List<JSONObject> generateJsonForResultsForCompetition(Long competitionId) {
         Set<ResultFootball> resultsFootballsForCompetition = findAllResultsForCompetition(competitionId);
 

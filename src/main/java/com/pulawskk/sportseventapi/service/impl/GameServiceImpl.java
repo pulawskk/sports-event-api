@@ -86,17 +86,4 @@ public class GameServiceImpl implements GameService, JsonUtil {
         generatedGames.add(jsonInfo);
         return generatedGames;
     }
-
-//    public JSONObject generateJsonFromGame(Game game) {
-//        JSONObject jsonFromGame = new JSONObject();
-//        jsonFromGame.put("teamHome", game.getTeamHome().getName());
-//        jsonFromGame.put("teamAway", game.getTeamAway().getName());
-//        jsonFromGame.put("oddsH", game.getOddByType(GameOddType.HOME_WIN).getValue());
-//        jsonFromGame.put("oddsX", game.getOddByType(GameOddType.DRAW).getValue());
-//        jsonFromGame.put("oddsA", game.getOddByType(GameOddType.AWAY_WIN).getValue());
-//        jsonFromGame.put("gameStatus", game.getStatus().name());
-//        Optional.ofNullable(game.getStartDate()).ifPresent(date -> jsonFromGame.put("startGame", date));
-//        Optional.ofNullable(game.getEndDate()).ifPresent(date -> jsonFromGame.put("endGame", date));
-//        return jsonFromGame;
-//    }
 }
