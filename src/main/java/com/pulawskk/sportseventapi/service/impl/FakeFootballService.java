@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
-public class FakeFootballService implements FakeService {
+public class FakeFootballService implements FakeService, JsonUtil {
 
     private final TeamService teamService;
     private final GameService gameService;
@@ -31,14 +31,16 @@ public class FakeFootballService implements FakeService {
     private final GameReportFootballService gameReportFootballService;
     private final ResultFootballService resultFootballService;
     private final CompetitionService competitionService;
+    private final JmsService jmsService;
 
-    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService) {
+    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService, JmsService jmsService) {
         this.teamService = teamService;
         this.gameService = gameService;
         this.oddService = oddService;
         this.gameReportFootballService = gameReportFootballService;
         this.resultFootballService = resultFootballService;
         this.competitionService = competitionService;
+        this.jmsService = jmsService;
     }
 
     @Override
@@ -204,6 +206,7 @@ public class FakeFootballService implements FakeService {
     @Scheduled(cron = "5/20 * * * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("FA Cup");
+        String queueName = "FA CUP prematch";
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
         if (gamesWithOutOdds.size() == 0) {
@@ -211,30 +214,27 @@ public class FakeFootballService implements FakeService {
         }
         Optional.ofNullable(gamesWithOutOdds.size()).ifPresent(s -> {
             if(s > 0) {
-                generateOdds(gamesWithOutOdds);
+               Set<Game> games = generateOdds(gamesWithOutOdds);
+               games.forEach(game -> {
+                   jmsService.sendJsonMessage(queueName, generateJsonFromGame(game));
+               });
             }
         });
     }
 
     @Scheduled(cron = "15/20 * * * * ?")
     void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
-        ConnectionFactory connectionFactory = new ConnectionFactory();
-        String uri = "amqp://mxddlpbm:3nP42tVOl_XbgGvhODI8nIu4GdAPXB2g@golden-kangaroo.rmq.cloudamqp.com/mxddlpbm";
-        connectionFactory.setUri(uri);
-        Connection connection = connectionFactory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueDeclare("products_queue", false, false, false, null);
-        channel.basicPublish("", "products_queue", null, "product_message".getBytes());
-        channel.close();
-        connection.close();
+        String queueName = "FA CUP result";
 
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
         Optional.ofNullable(inplayGames.size()).ifPresent(s -> {
             if(s > 0) {
-                generateResults(inplayGames);
+                Set<ResultFootball> resultsFootball = generateResults(inplayGames);
+                resultsFootball.forEach(result -> {
+                    jmsService.sendJsonMessage(queueName, generateJsonFromResult(result));
+                });
             }
         });
     }
