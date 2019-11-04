@@ -3,6 +3,7 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.ResultFootball;
 import com.pulawskk.sportseventapi.repository.ResultFootballRepository;
+import com.pulawskk.sportseventapi.service.JsonUtil;
 import com.pulawskk.sportseventapi.service.ResultService;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class ResultFootballService implements ResultService {
+public class ResultFootballService implements ResultService, JsonUtil {
 
     private final ResultFootballRepository resultFootballRepository;
 
@@ -64,24 +65,6 @@ public class ResultFootballService implements ResultService {
         jsonList.add(jsonInfo);
 
         return jsonList;
-    }
-
-    private JSONObject generateJsonFromResult(ResultFootball result) {
-        JSONObject json = new JSONObject();
-        json.put("teamHome", result.getGame().getTeamHome().getName());
-        json.put("teamAway", result.getGame().getTeamAway().getName());
-        json.put("competition", result.getGame().getCompetition().getName());
-        json.put("homeScores", result.getGameReport().getGoalHome());
-        json.put("homeCorners", result.getGameReport().getCornerHome());
-        json.put("homeOffsides", result.getGameReport().getOffsideHome());
-        json.put("homeYellowCards", result.getGameReport().getYCardHome());
-        json.put("homeRedCards", result.getGameReport().getRCardHome());
-        json.put("awayScores", result.getGameReport().getGoalAway());
-        json.put("awayCorners", result.getGameReport().getCornerAway());
-        json.put("awayOffsides", result.getGameReport().getOffsideAway());
-        json.put("awayYellowCards", result.getGameReport().getYCardAway());
-        json.put("awayRedCards", result.getGameReport().getRCardAway());
-        return json;
     }
 
     public List<JSONObject> generateJsonForResultsForCompetition(Long competitionId) {
