@@ -1,7 +1,6 @@
 package com.pulawskk.sportseventapi.service.impl;
 
 import com.pulawskk.sportseventapi.entity.*;
-import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
@@ -13,8 +12,6 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -45,6 +42,9 @@ class FakeFootballServiceTest {
     @Mock
     private CompetitionService competitionService;
 
+    @Mock
+    private JmsService jmsService;
+
     private Competition competition;
     private Set<Team> teams;
 
@@ -52,7 +52,7 @@ class FakeFootballServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService, competitionService);
+        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService, competitionService, jmsService);
         competition = Competition.builder().id(1L).name("Premier League").build();
         Set<Competition> competitions = new HashSet<>();
         competitions.add(competition);

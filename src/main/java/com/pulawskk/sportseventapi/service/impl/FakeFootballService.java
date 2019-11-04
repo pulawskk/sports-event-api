@@ -5,19 +5,25 @@ import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
-public class FakeFootballService implements FakeService {
+public class FakeFootballService implements FakeService, JsonUtil {
 
     private final TeamService teamService;
     private final GameService gameService;
@@ -25,14 +31,16 @@ public class FakeFootballService implements FakeService {
     private final GameReportFootballService gameReportFootballService;
     private final ResultFootballService resultFootballService;
     private final CompetitionService competitionService;
+    private final JmsService jmsService;
 
-    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService) {
+    public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService, JmsService jmsService) {
         this.teamService = teamService;
         this.gameService = gameService;
         this.oddService = oddService;
         this.gameReportFootballService = gameReportFootballService;
         this.resultFootballService = resultFootballService;
         this.competitionService = competitionService;
+        this.jmsService = jmsService;
     }
 
     @Override
@@ -198,6 +206,7 @@ public class FakeFootballService implements FakeService {
     @Scheduled(cron = "5/20 * * * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("FA Cup");
+        String queueName = "FA CUP prematch";
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
         if (gamesWithOutOdds.size() == 0) {
@@ -205,20 +214,27 @@ public class FakeFootballService implements FakeService {
         }
         Optional.ofNullable(gamesWithOutOdds.size()).ifPresent(s -> {
             if(s > 0) {
-                generateOdds(gamesWithOutOdds);
+               Set<Game> games = generateOdds(gamesWithOutOdds);
+               games.forEach(game -> {
+                   jmsService.sendJsonMessage(queueName, generateJsonFromGame(game));
+               });
             }
         });
-
     }
 
     @Scheduled(cron = "15/20 * * * * ?")
-    void generateResultsForInplayGamesForPremierLeague() {
+    void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
+        String queueName = "FA CUP result";
+
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
         Optional.ofNullable(inplayGames.size()).ifPresent(s -> {
             if(s > 0) {
-                generateResults(inplayGames);
+                Set<ResultFootball> resultsFootball = generateResults(inplayGames);
+                resultsFootball.forEach(result -> {
+                    jmsService.sendJsonMessage(queueName, generateJsonFromResult(result));
+                });
             }
         });
     }
