@@ -43,6 +43,9 @@ class FakeFootballServiceTest {
     private CompetitionService competitionService;
 
     @Mock
+    private HttpPostService httpPostService;
+
+    @Mock
     private JmsService jmsService;
 
     private Competition competition;
@@ -52,7 +55,7 @@ class FakeFootballServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService, competitionService, jmsService);
+        fakeFootballService = new FakeFootballService(teamService, gameService, oddService, gameReportFootballService, resultFootballService, competitionService, jmsService, httpPostService);
         competition = Competition.builder().id(1L).name("Premier League").build();
         Set<Competition> competitions = new HashSet<>();
         competitions.add(competition);
