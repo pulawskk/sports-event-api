@@ -25,6 +25,9 @@ public class Game {
     @SequenceGenerator(name="new_generator", sequenceName = "game_seq", initialValue = 5)
     private Long id;
 
+    @Column(name = "unique_id")
+    private String uniqueId;
+
     @ManyToOne
     @JoinColumn(name = "team_home_id", referencedColumnName = "id")
     private Team teamHome;

@@ -69,6 +69,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         generatedGames.forEach(game -> {
             Team teamA = teams.iterator().next();
             game.setTeamAway(teamA);
+            game.setUniqueId(UUID.randomUUID().toString().substring(0, 7));
             game.setStartDate(LocalDateTime.now());
             game.setEndDate(LocalDateTime.now().plusMinutes(5));
             game.setCompetition(competition);
