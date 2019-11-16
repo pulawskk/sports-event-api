@@ -243,7 +243,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         });
     }
 
-    @Scheduled(cron = "0 2/2 * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
 
@@ -269,7 +269,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         }
     }
 
-    @Scheduled(cron = "0 3/2 * * * ?")
+    @Scheduled(cron = "0 1/2 * * * ?")
     void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException { ;
 
         Competition competition = competitionService.findByName("Premier League");
