@@ -200,8 +200,9 @@ public class FakeFootballService implements FakeService, JsonUtil {
     }
 
     BigDecimal generateRandomValueForOdds() {
-        double number = (Math.random() * 600 )/100 + 1.2;
-        String numberString = String.valueOf(number);
+        int number = (int) (Math.random() * 600 );
+        double doubleNumber = number/100.00 + 1.2;
+        String numberString = String.valueOf(doubleNumber);
         return new BigDecimal(numberString);
     }
 
