@@ -24,6 +24,7 @@ public interface JsonUtil {
         json.put("awayOffsides", result.getGameReport().getOffsideAway());
         json.put("awayYellowCards", result.getGameReport().getYCardAway());
         json.put("awayRedCards", result.getGameReport().getRCardAway());
+        json.put("uniqueId", result.getGame().getUniqueId());
         return json;
     }
 
@@ -35,6 +36,7 @@ public interface JsonUtil {
         jsonFromGame.put("oddsX", game.getOddByType(GameOddType.DRAW).getValue());
         jsonFromGame.put("oddsA", game.getOddByType(GameOddType.AWAY_WIN).getValue());
         jsonFromGame.put("gameStatus", game.getStatus().name());
+        jsonFromGame.put("uniqueId", game.getUniqueId());
         jsonFromGame.put("competition", game.getCompetition().getName());
         Optional.ofNullable(game.getStartDate()).ifPresent(date -> jsonFromGame.put("startGame", date));
         Optional.ofNullable(game.getEndDate()).ifPresent(date -> jsonFromGame.put("endGame", date));
