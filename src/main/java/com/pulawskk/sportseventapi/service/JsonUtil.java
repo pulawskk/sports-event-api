@@ -35,6 +35,7 @@ public interface JsonUtil {
         jsonFromGame.put("oddsX", game.getOddByType(GameOddType.DRAW).getValue());
         jsonFromGame.put("oddsA", game.getOddByType(GameOddType.AWAY_WIN).getValue());
         jsonFromGame.put("gameStatus", game.getStatus().name());
+        jsonFromGame.put("competition", game.getCompetition().getName());
         Optional.ofNullable(game.getStartDate()).ifPresent(date -> jsonFromGame.put("startGame", date));
         Optional.ofNullable(game.getEndDate()).ifPresent(date -> jsonFromGame.put("endGame", date));
         return jsonFromGame;
