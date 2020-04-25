@@ -15,7 +15,9 @@
     <description>Sports event API with PostgreSQL</description>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
+        <docker.image.prefix>pulawskk11</docker.image.prefix>
+        <docker.image.name>sportseventapi</docker.image.name>
     </properties>
 
     <dependencies>
@@ -116,6 +118,65 @@
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
                 <version>2.22.0</version>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.33.0</version>
+                <configuration>
+                    <dockerHost>unix:///var/run/docker.sock</dockerHost>
+                    <verbose>true</verbose>
+                    <images>
+                        <image>
+                            <name>${docker.image.prefix}/${docker.image.name}</name>
+                            <alias>sportseventapi</alias>
+                            <build>
+                                <dockerFileDir>${project.basedir}/src/main/docker</dockerFileDir>
+                                <assembly>
+                                    <descriptorRef>artifact</descriptorRef>
+                                </assembly>
+                                <tags>latest</tags>
+                                <tags>${project.version}</tags>
+                            </build>
+                            <run>
+                                <ports>
+                                    <port>8080:8080</port>
+                                </ports>
+                                <env>
+                                    <SPRING_DATASOURCE_URL>jdbc:postgresql://mypostgres:5432/seadb?useSSL=false</SPRING_DATASOURCE_URL>
+                                </env>
+                                <links>
+                                    <link>mypostgres:mypostgres</link>
+                                </links>
+                                <dependsOn>
+                                    <container>mypostgres</container>
+                                </dependsOn>
+                            </run>
+                        </image>
+                        <image>
+                            <name>postgres:9.6</name>
+                            <alias>mypostgres</alias>
+                            <run>
+                                <ports>
+                                    <port>5001:5432</port>
+                                </ports>
+                                <env>
+                                    <POSTGRES_USER>postgres</POSTGRES_USER>
+                                    <POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
+                                    <POSTGRES_DB>seadb</POSTGRES_DB>
+                                </env>
+                                <log>
+                                    <enabled>true</enabled>
+                                    <color>blue</color>
+                                </log>
+                                <wait>
+                                    <time>10000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+
+                </configuration>
             </plugin>
         </plugins>
     </build>
