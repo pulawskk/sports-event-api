@@ -22,7 +22,7 @@ public class Game {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
-    @SequenceGenerator(name="new_generator", sequenceName = "game_seq", initialValue = 5)
+    @SequenceGenerator(name="new_generator", sequenceName = "game_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "unique_id")
