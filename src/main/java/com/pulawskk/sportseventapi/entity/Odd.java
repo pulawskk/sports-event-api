@@ -19,7 +19,7 @@ public class Odd {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
-    @SequenceGenerator(name="new_generator", sequenceName = "odd_seq", initialValue = 13)
+    @SequenceGenerator(name="new_generator", sequenceName = "odd_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "type")

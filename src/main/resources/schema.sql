@@ -47,6 +47,10 @@ create table if not exists games
             references teams
 );
 
+create sequence IF NOT EXISTS game_seq START WITH 1;
+alter sequence game_seq increment 1;
+alter table games alter column id set default nextval('public.game_seq');
+
 create table if not exists odds
 (
     id bigint not null
@@ -58,6 +62,10 @@ create table if not exists odds
         constraint fkpa9sxy385vbyb2cqnpay65oy
             references games
 );
+
+create sequence IF NOT EXISTS odd_seq START WITH 1;
+alter sequence odd_seq increment 1;
+alter table odds alter column id set default nextval('public.odd_seq');
 
 create table if not exists game_reports_football
 (
@@ -76,6 +84,9 @@ create table if not exists game_reports_football
     y_card_home integer
 );
 
+create sequence IF NOT EXISTS game_report_seq START WITH 1;
+alter sequence game_report_seq increment 1;
+alter table game_reports_football alter column id set default nextval('public.game_report_seq');
 
 create table if not exists results_football
 (

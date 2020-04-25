@@ -15,7 +15,7 @@ public class GameReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "new_generator")
-    @SequenceGenerator(name="new_generator", sequenceName = "game_report_seq", initialValue = 5)
+    @SequenceGenerator(name="new_generator", sequenceName = "game_report_seq", allocationSize = 1)
     private Long id;
 
     public GameReport(Long id) {
