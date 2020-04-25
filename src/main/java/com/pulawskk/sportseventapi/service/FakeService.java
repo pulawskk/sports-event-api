@@ -14,4 +14,6 @@ public interface FakeService {
     Set<ResultFootball> generateResults(Set<Game> games);
 
     GameReportFootball generateReportFootball(Game game);
+
+    void deleteOldGames();
 }

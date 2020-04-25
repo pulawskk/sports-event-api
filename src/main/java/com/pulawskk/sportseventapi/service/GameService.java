@@ -28,4 +28,6 @@ public interface GameService {
     void delete(Game game);
 
     Set<Game> findAllGeneratedGamesForCompetition(Long competitionId);
+
+    void deleteOldGames(int amountToBeLeft);
 }

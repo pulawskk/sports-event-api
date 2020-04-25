@@ -296,4 +296,11 @@ public class FakeFootballService implements FakeService, JsonUtil {
             e.printStackTrace();
         }
     }
+
+    @Override
+    @Scheduled(cron = "0 10 7,14,21 * * ?")
+    public void deleteOldGames() {
+        final int amountToBeLeft = 100;
+        gameService.deleteOldGames(amountToBeLeft);
+    }
 }

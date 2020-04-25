@@ -71,6 +71,12 @@ public class GameServiceImpl implements GameService, JsonUtil {
         return gameRepository.findAllGeneratedGames(competitionId).stream().collect(Collectors.toSet());
     }
 
+    @Override
+    public void deleteOldGames(int amountToBeLeft) {
+        List<Game> gamesToBeDeleted = gameRepository.findAllGamesToBeDeleted(amountToBeLeft);
+        gameRepository.deleteAll(gamesToBeDeleted);
+    }
+
     @Transactional
     public List<JSONObject> generateJsonForInplayGamesForCompetition(Long competitionId) throws JSONException {
         Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
