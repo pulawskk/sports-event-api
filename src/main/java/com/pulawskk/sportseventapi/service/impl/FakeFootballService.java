@@ -211,7 +211,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         return new BigDecimal(numberString);
     }
 
-    @Scheduled(cron = "0 5/20 * * * ?")
+    @Scheduled(cron = "0 5/20 8-20 * * ?")
     void generateGamesForFaCup() {
         Competition competition = competitionService.findByName("FA Cup");
         String queueName = "FA CUP prematch";
@@ -230,7 +230,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         });
     }
 
-    @Scheduled(cron = "0 15/20 * * * ?")
+    @Scheduled(cron = "0 15/20 8-20 * * ?")
     void generateResultsForInplayGamesForFaCup() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
         String queueName = "FA CUP result";
 
@@ -247,7 +247,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         });
     }
 
-    @Scheduled(cron = "0 0/2 * * * ?")
+    @Scheduled(cron = "0 0/2 8-20 * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
 
@@ -273,7 +273,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         }
     }
 
-    @Scheduled(cron = "0 1/2 * * * ?")
+    @Scheduled(cron = "0 1/2 8-20 * * ?")
     void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException { ;
 
         Competition competition = competitionService.findByName("Premier League");
