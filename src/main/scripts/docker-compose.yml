@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  mypostgres:
+    image: postgres:9.6
+    restart: always
+    ports:
+      - '5001:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: seadb
+
+  tester:
+    image: pulawskk11/sportseventapi
+    restart: always
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mypostgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://mypostgres:5432/postgres?useSSL=false
