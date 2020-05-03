@@ -31,8 +31,8 @@ public class FakeFootballService implements FakeService, JsonUtil {
     private final JmsService jmsService;
     private final HttpPostService httpPostService;
 
-    private final String URL_SERVER_SCHEDULED = "http://localhost:8081/games/game";
-    private final String URL_SERVER_RESULT = "http://localhost:8081/games/result";
+    private final String URL_SERVER_SCHEDULED = "http://172.21.0.3:8081/games/game";
+    private final String URL_SERVER_RESULT = "http://172.21.0.3:8081/games/result";
 
     public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService, JmsService jmsService, HttpPostService httpPostService) {
         this.teamService = teamService;
