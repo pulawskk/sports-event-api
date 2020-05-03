@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  mypostgres:
+  seapostgres:
     image: postgres:9.6
     restart: always
     ports:
@@ -11,12 +11,12 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: seadb
 
-  tester:
-    image: pulawskk11/sportseventapi
+  sea:
+    image: pulawskk11/sportseventapi:latest
     restart: always
     ports:
       - '8080:8080'
     depends_on:
-      - mypostgres
+      - seapostgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://mypostgres:5432/postgres?useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:postgresql://seapostgres:5432/seadb?useSSL=false

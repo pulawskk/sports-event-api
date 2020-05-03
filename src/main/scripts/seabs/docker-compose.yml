@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  bspostgres:
+    container_name: bspostgres
+    image: postgres:9.6
+    restart: always
+    ports:
+      - '5430:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bsdb
+    networks:
+      betting_network:
+        ipv4_address: 172.21.0.2
+
+  bs:
+    container_name: bsapp
+    image: pulawskk11/bettingsite:latest
+    restart: always
+    ports:
+      - '8081:8081'
+    depends_on:
+      - bspostgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://bspostgres:5432/bsdb?useSSL=false
+    networks:
+      betting_network:
+        ipv4_address: 172.21.0.3
+
+  seapostgres:
+    container_name: seapostgres
+    image: postgres:9.6
+    restart: always
+    ports:
+      - '5001:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: seadb
+    networks:
+      betting_network:
+        ipv4_address: 172.21.0.4
+
+  sea:
+    container_name: seaapp
+    image: pulawskk11/sportseventapi:latest
+    restart: always
+    ports:
+      - '8080:8080'
+    depends_on:
+      - seapostgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://seapostgres:5432/seadb?useSSL=false
+    networks:
+      betting_network:
+        ipv4_address: 172.21.0.5
+
+networks:
+  betting_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
