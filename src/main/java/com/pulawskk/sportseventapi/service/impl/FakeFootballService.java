@@ -5,6 +5,7 @@ import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,12 @@ import java.util.stream.IntStream;
 @Service
 public class FakeFootballService implements FakeService, JsonUtil {
 
+    @Value("${betting.serverip}")
+    private String bettingServerIp;
+
+    @Value("${betting.serverport}")
+    private String bettingServerPort;
+
     private final TeamService teamService;
     private final GameService gameService;
     private final OddService oddService;
@@ -31,8 +38,8 @@ public class FakeFootballService implements FakeService, JsonUtil {
     private final JmsService jmsService;
     private final HttpPostService httpPostService;
 
-    private final String URL_SERVER_SCHEDULED = "http://172.21.0.3:8081/games/game";
-    private final String URL_SERVER_RESULT = "http://172.21.0.3:8081/games/result";
+    private final String URL_SERVER_SCHEDULED = "/games/game";
+    private final String URL_SERVER_RESULT = "/games/result";
 
     public FakeFootballService(TeamService teamService, GameService gameService, OddService oddService, GameReportFootballService gameReportFootballService, ResultFootballService resultFootballService, CompetitionService competitionService, JmsService jmsService, HttpPostService httpPostService) {
         this.teamService = teamService;
@@ -250,7 +257,6 @@ public class FakeFootballService implements FakeService, JsonUtil {
     @Scheduled(cron = "0 0/4 8-20 * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
-
         Set<Game> gamesWithOutOdds = generateGames(competition);
         if (gamesWithOutOdds.size() == 0) {
             return;
@@ -267,7 +273,8 @@ public class FakeFootballService implements FakeService, JsonUtil {
 
     private void postGameMsg(Game game) {
         try {
-            httpPostService.postJsonMessage(generateJsonFromGame(game), URL_SERVER_SCHEDULED);
+            final String urlServerScheduled = "http://" + bettingServerIp + ":" + bettingServerPort + URL_SERVER_SCHEDULED;
+            httpPostService.postJsonMessage(generateJsonFromGame(game), urlServerScheduled);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -291,7 +298,8 @@ public class FakeFootballService implements FakeService, JsonUtil {
 
     private void postResultMsg(ResultFootball result) {
         try {
-            httpPostService.postJsonMessage(generateJsonFromResult(result), URL_SERVER_RESULT);
+            final String urlServerResult = "http://" + bettingServerIp + ":" + bettingServerPort + URL_SERVER_RESULT;
+            httpPostService.postJsonMessage(generateJsonFromResult(result), urlServerResult);
         } catch (IOException e) {
             e.printStackTrace();
         }

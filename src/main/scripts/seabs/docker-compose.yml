@@ -25,6 +25,7 @@ services:
       - bspostgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://bspostgres:5432/bsdb?useSSL=false
+      IPNETWORK_APP_BS: 172.21.0.3
     networks:
       betting_network:
         ipv4_address: 172.21.0.3
@@ -53,6 +54,8 @@ services:
       - seapostgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://seapostgres:5432/seadb?useSSL=false
+      BETTING_SERVERIP: 172.21.0.3
+      BETTING_SERVERPORT: 8085
     networks:
       betting_network:
         ipv4_address: 172.21.0.5
