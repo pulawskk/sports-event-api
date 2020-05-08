@@ -1,7 +1,9 @@
 version: '3'
 
 services:
-  seapostgres:
+
+  justseapostgres:
+    container_name: justseapostgres
     image: postgres:9.6
     restart: always
     ports:
@@ -10,13 +12,31 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: seadb
+    networks:
+      justsea_network:
+        ipv4_address: 173.21.0.4
 
-  sea:
+  justseaapp:
+    container_name: justseaapp
     image: pulawskk11/sportseventapi:latest
     restart: always
     ports:
       - '8080:8080'
+      - '8888:8888'
     depends_on:
-      - seapostgres
+      - justseapostgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://seapostgres:5432/seadb?useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:postgresql://justseapostgres:5432/seadb?useSSL=false
+#      BETTING_SERVERIP: 173.21.0.3
+#      BETTING_SERVERPORT: 8085
+    networks:
+      justsea_network:
+        ipv4_address: 173.21.0.5
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888 -jar myapp.jar
+
+networks:
+  justsea_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 173.21.0.0/16

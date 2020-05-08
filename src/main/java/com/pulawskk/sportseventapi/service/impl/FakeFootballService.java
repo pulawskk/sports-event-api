@@ -272,6 +272,12 @@ public class FakeFootballService implements FakeService, JsonUtil {
     }
 
     private void postGameMsg(Game game) {
+        if (bettingServerIp.isBlank() || bettingServerPort.isBlank()) {
+            //todo throw exception
+            //todo make method generic
+            System.out.println("Could not send a message. Betting ip or server is not valid.");
+            return;
+        }
         try {
             final String urlServerScheduled = "http://" + bettingServerIp + ":" + bettingServerPort + URL_SERVER_SCHEDULED;
             httpPostService.postJsonMessage(generateJsonFromGame(game), urlServerScheduled);
@@ -297,6 +303,12 @@ public class FakeFootballService implements FakeService, JsonUtil {
     }
 
     private void postResultMsg(ResultFootball result) {
+        if (bettingServerIp.isBlank() || bettingServerPort.isBlank()) {
+            //todo throw exception
+            //todo make method generic
+            System.out.println("Could not send a message. Betting ip or server is not valid.");
+            return;
+        }
         try {
             final String urlServerResult = "http://" + bettingServerIp + ":" + bettingServerPort + URL_SERVER_RESULT;
             httpPostService.postJsonMessage(generateJsonFromResult(result), urlServerResult);
