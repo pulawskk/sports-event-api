@@ -16,4 +16,6 @@ public interface FakeService {
     GameReportFootball generateReportFootball(Game game);
 
     void deleteOldGames();
+
+    void restartTournament(String competitionName);
 }

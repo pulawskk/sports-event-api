@@ -62,7 +62,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         int gamesNumber = competition.getTeams().size()/2;
 
         if(gamesNumber == 0) {
-            return generatedGames;
+            restartTournament(competition.getName());
         }
 
         Set<Team> teams = teamService.findAllByCompetitions(competition).stream().collect(Collectors.toSet());
@@ -220,14 +220,15 @@ public class FakeFootballService implements FakeService, JsonUtil {
 
     @Scheduled(cron = "0 5/20 8-20 * * ?")
     void generateGamesForFaCup() {
-        Competition competition = competitionService.findByName("FA Cup");
+        final String competitionName = "FA Cup";
+        Competition competition = competitionService.findByName(competitionName);
         String queueName = "FA CUP prematch";
 
         Set<Game> gamesWithOutOdds = generateGames(competition);
         if (gamesWithOutOdds.size() == 0) {
             return;
         }
-        Optional.ofNullable(gamesWithOutOdds.size()).ifPresent(s -> {
+        Optional.of(gamesWithOutOdds.size()).ifPresent(s -> {
             if(s > 0) {
                Set<Game> games = generateOdds(gamesWithOutOdds);
                games.forEach(game -> {
@@ -244,7 +245,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
-        Optional.ofNullable(inplayGames.size()).ifPresent(s -> {
+        Optional.of(inplayGames.size()).ifPresent(s -> {
             if(s > 0) {
                 Set<ResultFootball> resultsFootball = generateResults(inplayGames);
                 resultsFootball.forEach(result -> {
@@ -310,5 +311,11 @@ public class FakeFootballService implements FakeService, JsonUtil {
     public void deleteOldGames() {
         final int amountToBeLeft = 100;
         gameService.deleteOldGames(amountToBeLeft);
+    }
+
+    @Override
+    public void restartTournament(String competitionName) {
+
+        System.out.println("TOURNAMENT IS RESTARTED");
     }
 }
