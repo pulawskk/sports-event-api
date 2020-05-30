@@ -20,7 +20,7 @@ import java.util.Set;
 public class Competition {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "name")

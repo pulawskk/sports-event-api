@@ -15,7 +15,7 @@ public interface CompetitionService {
 
     Set<Competition> findAll();
 
-    Set<Competition> findCompetitionsByTeams(Team team);
+    Set<Competition> findCompetitionsByTeam(Team team);
 
     Competition save(Competition competition);
 

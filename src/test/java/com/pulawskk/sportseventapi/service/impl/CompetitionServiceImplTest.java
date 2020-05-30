@@ -100,7 +100,7 @@ class CompetitionServiceImplTest {
 
         when(competitionRepository.findCompetitionsByTeams(ArgumentMatchers.any())).thenReturn(new ArrayList<>(competitions));
 
-        Set<Competition> competitionsFromDb = competitionServiceImpl.findCompetitionsByTeams(chelseaTeam);
+        Set<Competition> competitionsFromDb = competitionServiceImpl.findCompetitionsByTeam(chelseaTeam);
 
         assertThat(competitionsFromDb, hasSize(2));
     }

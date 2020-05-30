@@ -58,7 +58,7 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
 
-    public Set<Competition> findCompetitionsByTeams(Team team) {
+    public Set<Competition> findCompetitionsByTeam(Team team) {
         List<Competition> competitionsFromDb = competitionRepository.findCompetitionsByTeams(team);
         Set<Competition> competitions = new HashSet<>(competitionsFromDb);
         competitions.forEach(competition -> {
