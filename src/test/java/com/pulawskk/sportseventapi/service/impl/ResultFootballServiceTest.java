@@ -3,6 +3,8 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.repository.ResultFootballRepository;
+import org.assertj.core.util.Lists;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -11,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -57,7 +60,6 @@ class ResultFootballServiceTest {
         teams.add(chelsea);
         teams.add(arsenal);
         premierLeague.setTeams(teams);
-
 
         chelseaVsArsenal = Game.builder().id(1L).competition(premierLeague).teamAway(arsenal).teamHome(chelsea).startDate(LocalDateTime.now()).endDate(LocalDateTime.now()).build();
         chelseaOdd = Odd.builder().id(1L).type(GameOddType.HOME_WIN).game(chelseaVsArsenal).value(new BigDecimal("1.5")).build();
@@ -132,5 +134,38 @@ class ResultFootballServiceTest {
     void shouldDeleteResultFootball_whenResultFootballWithSpecificIdExists() {
         resultFootballService.deleteById(1L);
         verify(resultFootballRepository, times(1)).deleteById(anyLong());
+    }
+
+    @Test
+    void shouldReturnJsonWithInfoAboutNumberSizeZero_whenThereIsNoResult() {
+        //given
+        doReturn(new HashSet<>()).when(resultFootballRepository).findAllResultsForCompetition(anyLong());
+
+        //when
+        List<JSONObject> results = resultFootballService.generateJsonForResultsForCompetition(anyLong());
+
+        //then
+        assertAll(() -> {
+            assertThat(results.size(), is(1));
+        });
+
+        verify(resultFootballRepository, times(1)).findAllResultsForCompetition(anyLong());
+    }
+
+    @Test
+    void shouldReturnSetOfSavedResultFootballService_whenSaveAllIsSuccess() {
+        //given
+        List<ResultFootball> resultsList = Lists.newArrayList(resultFootball);
+        Set<ResultFootball> resultsSet = new HashSet<>();
+        resultsSet.add(resultFootball);
+
+        doReturn(resultsList).when(resultFootballRepository).saveAll(resultsSet);
+
+        //when
+        Set<ResultFootball> resultFootballsSaved = resultFootballService.saveAll(resultsSet);
+
+        //then
+        assertThat(resultFootballsSaved.size(), is(1));
+        verify(resultFootballRepository, times(1)).saveAll(anySet());
     }
 }

@@ -1,6 +1,5 @@
 package com.pulawskk.sportseventapi.service.impl;
 
-import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.ResultFootball;
 import com.pulawskk.sportseventapi.repository.ResultFootballRepository;
 import com.pulawskk.sportseventapi.service.JsonUtil;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,7 +46,7 @@ public class ResultFootballService implements ResultService, JsonUtil {
 
     @Override
     public Set<ResultFootball> saveAll(Set<ResultFootball> results) {
-        return resultFootballRepository.saveAll(results).stream().collect(Collectors.toSet());
+        return new HashSet<>(resultFootballRepository.saveAll(results));
     }
 
     @Transactional
@@ -68,12 +68,12 @@ public class ResultFootballService implements ResultService, JsonUtil {
     }
 
     public List<JSONObject> generateJsonForResultsForCompetition(Long competitionId) {
-        Set<ResultFootball> resultsFootballsForCompetition = findAllResultsForCompetition(competitionId);
+        Set<ResultFootball> resultsFootballsForCompetition = new HashSet<>();
+        resultsFootballsForCompetition = findAllResultsForCompetition(competitionId);
 
         List<JSONObject> jsonList = new ArrayList<>();
 
-
-        if (resultsFootballsForCompetition != null) {
+        if (resultsFootballsForCompetition != null && resultsFootballsForCompetition.size() > 0) {
             resultsFootballsForCompetition.forEach(result -> {
                 jsonList.add(generateJsonFromResult(result));
             });
