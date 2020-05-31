@@ -10,17 +10,22 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URI;
 
 @Service
 public class HttpPostServiceImpl implements HttpPostService {
 
-    private CloseableHttpClient client;
-    private HttpPost httpPost;
+    private final CloseableHttpClient client;
+    private final HttpPost httpPost;
+
+    public HttpPostServiceImpl(CloseableHttpClient client, HttpPost httpPost) {
+        this.client = client;
+        this.httpPost = httpPost;
+    }
 
     @Override
     public void postJsonMessage(JSONObject jsonObject, String url) throws IOException {
-        this.client = HttpClients.createDefault();
-        this.httpPost = new HttpPost(url);
+        httpPost.setURI(URI.create(url));
         StringEntity entity = new StringEntity(jsonObject.toString());
         httpPost.setEntity(entity);
         httpPost.setHeader("Accept", "application/json");
@@ -29,7 +34,8 @@ public class HttpPostServiceImpl implements HttpPostService {
             CloseableHttpResponse response = client.execute(httpPost);
         } catch (Exception e) {
             System.out.println("Could not send a message due to: -> " + e.getMessage());
+        } finally {
+            client.close();
         }
-        client.close();
     }
 }
