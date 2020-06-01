@@ -5,16 +5,21 @@ import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Odd;
 import com.pulawskk.sportseventapi.entity.Team;
 import com.pulawskk.sportseventapi.enums.GameOddType;
+import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.OddRepository;
+import org.assertj.core.util.Lists;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.collections.Sets;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -166,5 +171,93 @@ class GameServiceImplTest {
     void shouldDeleteGame_whenGameExists() {
         gameServiceImpl.delete(chelseaVsArsenal);
         verify(gameRepository, times(1)).delete(any());
+    }
+
+    @Test
+    void shouldSaveAllGames_whenSetWithGameObjectsIsPassed() {
+        //given
+        Set<Game> gameSet = Sets.newSet(Game.builder().build());
+        List<Game> savedGameList = Lists.newArrayList(Game.builder().build());
+
+        doReturn(savedGameList).when(gameRepository).saveAll(gameSet);
+
+        //when
+        Set<Game> gamesFromDb = gameServiceImpl.saveAll(gameSet);
+
+        //then
+        assertThat(gamesFromDb.size(), is(1));
+        verify(gameRepository, times(1)).saveAll(gameSet);
+    }
+
+    @Test
+    void shouldReturnAllGeneratedGamesForCompetition_whenCompetitionIdIsPassed() {
+        //given
+        List<Game> foundGameList = Lists.newArrayList(Game.builder().build(), Game.builder().build());
+
+        doReturn(foundGameList).when(gameRepository).findAllGeneratedGames(anyLong());
+
+        //when
+        Set<Game> gamesFromDb = gameServiceImpl.findAllGeneratedGamesForCompetition(anyLong());
+
+        //then
+        assertThat(gamesFromDb.size(), is(2));
+        verify(gameRepository, times(1)).findAllGeneratedGames(anyLong());
+    }
+
+    @Test
+    void shouldDeleteAllGamesAndLeftSpecificAmount_whenAmountToBeLeftIsPassed() {
+        //given
+        List<Game> gamesListToBeDeleted = Lists.newArrayList(Game.builder().build(),
+                Game.builder().build(),
+                Game.builder().build());
+
+        doReturn(gamesListToBeDeleted).when(gameRepository).findAllGamesToBeDeleted(anyInt());
+
+        //when
+        gameServiceImpl.deleteOldGames(anyInt());
+
+        //then
+        verify(gameRepository, times(1)).findAllGamesToBeDeleted(anyInt());
+    }
+
+    @Test
+    void shouldGenerateJsonListWithGamesForCompetition_whenCompetitionIdIsPassedAndGameSetSizeIsPositive() {
+        //given
+        Game game = Game.builder()
+                .id(1L)
+                .competition(Competition.builder().build())
+                .teamAway(Team.builder().name("Chelsea").build())
+                .teamHome(Team.builder().name("Arsenal").build())
+                .odds(Sets.newSet(
+                        Odd.builder().type(GameOddType.HOME_WIN).value(new BigDecimal("1.3")).build(),
+                        Odd.builder().type(GameOddType.DRAW).value(new BigDecimal("3.2")).build(),
+                        Odd.builder().type(GameOddType.AWAY_WIN).value(new BigDecimal("7.3")).build()
+                ))
+                .status(GameStatus.PREMATCH)
+                .uniqueId("uniqueId")
+                .build();
+
+        doReturn(Lists.newArrayList(game))
+                .when(gameRepository).findAllGeneratedGames(anyLong());
+
+        //when
+        List<JSONObject> generatedGames = gameServiceImpl.generateJsonForInplayGamesForCompetition(anyLong());
+
+        //then
+        assertThat(generatedGames.size(), is(2));
+        verify(gameRepository, times(1)).findAllGeneratedGames(anyLong());
+    }
+
+    @Test
+    void shouldNotGenerateJsonListWithGamesForCompetition_whenCompetitionIdIsPassedAndGameSetSizeIsZero() {
+        //given
+        doReturn(Lists.emptyList()).when(gameRepository).findAllGeneratedGames(anyLong());
+
+        //when
+        List<JSONObject> generatedGames = gameServiceImpl.generateJsonForInplayGamesForCompetition(anyLong());
+
+        //then
+        assertThat(generatedGames.size(), is(1));
+        verify(gameRepository, times(1)).findAllGeneratedGames(anyLong());
     }
 }

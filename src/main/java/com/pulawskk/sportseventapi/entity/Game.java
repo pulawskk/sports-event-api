@@ -56,7 +56,8 @@ public class Game {
     private GameStatus status;
 
     @Builder
-    public Game(Long id, Team teamHome, Team teamAway, Competition competition, LocalDateTime startDate, LocalDateTime endDate, Set<Odd> odds, GameStatus status) {
+    public Game(String uniqueId, Long id, Team teamHome, Team teamAway, Competition competition, LocalDateTime startDate, LocalDateTime endDate, Set<Odd> odds, GameStatus status) {
+        this.uniqueId = uniqueId;
         this.id = id;
         this.teamAway = teamAway;
         this.teamHome = teamHome;

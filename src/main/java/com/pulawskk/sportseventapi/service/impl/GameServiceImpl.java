@@ -68,7 +68,7 @@ public class GameServiceImpl implements GameService, JsonUtil {
     @Override
     @Transactional
     public Set<Game> findAllGeneratedGamesForCompetition(Long competitionId) {
-        return gameRepository.findAllGeneratedGames(competitionId).stream().collect(Collectors.toSet());
+        return new HashSet<>(gameRepository.findAllGeneratedGames(competitionId));
     }
 
     @Override
@@ -82,7 +82,7 @@ public class GameServiceImpl implements GameService, JsonUtil {
         Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
         List<JSONObject> generatedGames = new ArrayList<>();
 
-        if(currentGamesFromDb != null) {
+        if(currentGamesFromDb.size() > 0) {
             currentGamesFromDb.forEach(game -> {
                 generatedGames.add(generateJsonFromGame(game));
             });
