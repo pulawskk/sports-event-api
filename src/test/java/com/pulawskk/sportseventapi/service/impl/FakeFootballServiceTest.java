@@ -6,10 +6,19 @@ import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.collections.Sets;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,25 +115,25 @@ class FakeFootballServiceTest {
     @Test
     void shouldReturnSetOfGamesWithUpdatedOdds_whenSetOfGamesIsGiven() {
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
-        Game gameForSave = Game.builder().id(1L).build();
+        Game gameForSave = Game.builder().id(1L)
+                .teamHome(chelseaTeam).teamAway(arsenalTeam)
+                .competition(competition).build();
         when(gameService.save(any())).thenReturn(gameForSave);
 
         Odd oddForSave = Odd.builder().id(1L).build();
         when(oddService.save(any())).thenReturn(oddForSave);
 
-        Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
-        Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
+//        Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
+        Game gameWithOdds = fakeFootballService.generateOdds(gameForSave);
 
-        gamesWithOdds.forEach(game -> {
-            assertAll(() -> {
-                assertThat(game.getStatus(), is(GameStatus.PREMATCH));
-                assertThat(game.getOdds(), hasSize(3));
-                assertThat(game.getTeamHome(), is(notNullValue()));
-                assertThat(game.getTeamAway(), is(notNullValue()));
-                assertThat(game.getResultFootball(), is(nullValue()));
-                assertThat(game.getCompetition().getName(), is(competition.getName()));
-                assertThat(game.getCompetition().getId(), is(1L));
-            });
+        assertAll(() -> {
+            assertThat(gameWithOdds.getStatus(), is(GameStatus.PREMATCH));
+            assertThat(gameWithOdds.getOdds(), hasSize(3));
+            assertThat(gameWithOdds.getTeamHome(), is(notNullValue()));
+            assertThat(gameWithOdds.getTeamAway(), is(notNullValue()));
+            assertThat(gameWithOdds.getResultFootball(), is(nullValue()));
+            assertThat(gameWithOdds.getCompetition().getName(), is(competition.getName()));
+            assertThat(gameWithOdds.getCompetition().getId(), is(1L));
         });
     }
 
@@ -133,8 +142,8 @@ class FakeFootballServiceTest {
         competition.setType(CompetitionType.LEAGUE);
         when(teamService.findAllByCompetitions(competition)).thenReturn(teams);
 
-//        Competition competitionLeague = Competition.builder().id(4L).type(CompetitionType.LEAGUE).build();
-        Game gameForSave = Game.builder().id(1L).build();
+        Game gameForSave = Game.builder().id(1L).teamHome(chelseaTeam).teamAway(arsenalTeam)
+                .competition(competition).build();
         Set<Game> gamesForSave = new HashSet<>();
         gamesForSave.add(gameForSave);
         when(gameService.save(any())).thenReturn(gameForSave);
@@ -152,12 +161,11 @@ class FakeFootballServiceTest {
         when(gameReportFootballService.save(any())).thenReturn(gameReportFootballForSaved);
 
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competition);
-        Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
-        Set<ResultFootball> result = fakeFootballService.generateResults(gamesWithOdds);
+        Game gameWithOdds = fakeFootballService.generateOdds(gameForSave);
+        Set<ResultFootball> result = fakeFootballService.generateResults(Sets.newSet(gameWithOdds));
 
         assertAll(() -> {
-            assertThat(gamesWithOdds, hasSize(10));
-            assertThat(result, hasSize(gamesWithOdds.size()));
+            assertThat(result, hasSize(1));
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
             assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
         });
@@ -180,7 +188,8 @@ class FakeFootballServiceTest {
         teams.forEach(t -> t.setCompetitions(competitionTournamentRoundsSet));
         when(teamService.findAllByCompetitions(competitionTournamentRounds)).thenReturn(teams);
 
-        Game gameForSave = Game.builder().id(1L).build();
+        Game gameForSave = Game.builder().id(1L).teamHome(chelseaTeam).teamAway(arsenalTeam)
+                .competition(competition).build();
         Set<Game> gamesForSave = new HashSet<>();
         gamesForSave.add(gameForSave);
         when(gameService.save(any())).thenReturn(gameForSave);
@@ -200,20 +209,17 @@ class FakeFootballServiceTest {
         doReturn(Team.builder().competitions(competitionTournamentRoundsSet).name("Chelsea").build()).when(teamService).findByName(anyString());
 
         Set<Game> gamesWithoutOdds = fakeFootballService.generateGames(competitionTournamentRounds);
-        Set<Game> gamesWithOdds = fakeFootballService.generateOdds(gamesWithoutOdds);
-        Set<ResultFootball> result = fakeFootballService.generateResults(gamesWithOdds);
+        Game gameWithOdds = fakeFootballService.generateOdds(gameForSave);
+        Set<ResultFootball> result = fakeFootballService.generateResults(Sets.newSet(gameWithOdds));
 
         assertAll(() -> {
-            assertThat(gamesWithOdds, hasSize(1));
-            assertThat(result, hasSize(gamesWithOdds.size()));
+            assertThat(result, hasSize(1));
             assertThat(result.iterator().next().getGameReport().getGoalHome(), greaterThan(-1));
             assertThat(result.iterator().next().getGameReport().getCornerAway(), greaterThan(-1));
         });
 
         verify(resultFootballService, times(1)).saveAll(anySet());
-        verify(competitionService, times(teams.size())).save(any());
-        verify(teamService, times(teams.size())).save(any());
-        verify(teamService, times(teams.size())).findByName(anyString());
+        verify(teamService, times(1)).findAllByCompetitions(any());
     }
 
     @Test
@@ -266,5 +272,154 @@ class FakeFootballServiceTest {
             assertThat(number, lessThan(10));
             assertThat(number, greaterThan(0));
         }
+    }
+
+    @Test
+    void shouldGenerateGamesForFaCup_whenGamesWithOddsAreAvailable() {
+        //given
+        Team chelseaTeam = Team.builder().id(1L).name("Chelsea").build();
+        Team westHamTeam = Team.builder().id(2L).name("West Ham").build();
+        Team arsenalTeam = Team.builder().id(3L).name("Arsenal").build();
+        Team crystalPalaceTeam = Team.builder().id(4L).name("Crystal Palace").build();
+        Set<Team> teamSet = Sets.newSet(chelseaTeam, westHamTeam, arsenalTeam, crystalPalaceTeam);
+
+        Competition faCupTournament = Competition.builder()
+                .id(11L).type(CompetitionType.TOURNAMENT_ROUNDS)
+                .name("FA Cup").teams(teamSet).build();
+        teamSet.forEach(t -> t.setCompetitions(Sets.newSet(faCupTournament)));
+
+        Game chelseaVsWestHamGame = Game.builder().id(21L).competition(faCupTournament).teamHome(chelseaTeam).teamAway(westHamTeam).status(GameStatus.PREMATCH).build();
+        Game arsenalVsCrystalPalaceGame = Game.builder().id(22L).competition(faCupTournament).teamHome(arsenalTeam).teamAway(crystalPalaceTeam).status(GameStatus.PREMATCH).build();
+        Set<Game> gameSet = Sets.newSet(chelseaVsWestHamGame, arsenalVsCrystalPalaceGame);
+
+        doReturn(faCupTournament).when(competitionService).findByName("FA Cup");
+        doReturn(teamSet).when(teamService).findAllByCompetitions(faCupTournament);
+        doReturn(chelseaVsWestHamGame).when(gameService).save(any());
+        doReturn(gameSet).when(gameService).saveAll(gameSet);
+        doReturn(Odd.builder().build()).when(oddService).save(any());
+        doNothing().when(jmsService).sendJsonMessage(anyString(), any());
+
+        //when
+        fakeFootballService.generateGamesForFaCup();
+
+        //then
+        verify(oddService, times(3 * gameSet.size())).save(any());
+        verify(gameService, times(1)).saveAll(anySet());
+    }
+
+    @Test
+    void shouldGenerateGamesForPremierLeague_whenGamesWithOddsAreAvailable() throws IOException {
+        //given
+        Team chelseaTeam = Team.builder().id(1L).name("Chelsea").build();
+        Team westHamTeam = Team.builder().id(2L).name("West Ham").build();
+        Team arsenalTeam = Team.builder().id(3L).name("Arsenal").build();
+        Team crystalPalaceTeam = Team.builder().id(4L).name("Crystal Palace").build();
+        Set<Team> teamSet = Sets.newSet(chelseaTeam, westHamTeam, arsenalTeam, crystalPalaceTeam);
+
+        Competition premierLeagueTournament = Competition.builder()
+                .id(11L).type(CompetitionType.LEAGUE)
+                .name("Premier League").teams(teamSet).build();
+        teamSet.forEach(t -> t.setCompetitions(Sets.newSet(premierLeagueTournament)));
+
+        Game chelseaVsWestHamGame = Game.builder().id(21L).competition(premierLeagueTournament).teamHome(chelseaTeam).teamAway(westHamTeam).status(GameStatus.PREMATCH).build();
+        Game arsenalVsCrystalPalaceGame = Game.builder().id(22L).competition(premierLeagueTournament).teamHome(arsenalTeam).teamAway(crystalPalaceTeam).status(GameStatus.PREMATCH).build();
+        Set<Game> gameSet = Sets.newSet(chelseaVsWestHamGame, arsenalVsCrystalPalaceGame);
+
+        doReturn(premierLeagueTournament).when(competitionService).findByName("Premier League");
+        doReturn(teamSet).when(teamService).findAllByCompetitions(premierLeagueTournament);
+        doReturn(chelseaVsWestHamGame).when(gameService).save(any());
+        doReturn(gameSet).when(gameService).saveAll(gameSet);
+        doReturn(Odd.builder().build()).when(oddService).save(any());
+        doNothing().when(httpPostService).postJsonMessage(any(), anyString());
+        fakeFootballService.setBettingServerIp("ip");
+        fakeFootballService.setBettingServerPort("port");
+
+        //when
+        fakeFootballService.generateGamesForPremierLeague();
+
+        //then
+        verify(oddService, times(3 * gameSet.size())).save(any());
+        verify(gameService, times(1)).saveAll(anySet());
+    }
+
+    @DisplayName("check bettingsite server params : ")
+    @ParameterizedTest(name = "[{index}] {displayName} ip = [{0}] & port = [{1}] should invoke postJonMessage {2} times")
+    @MethodSource("getBettingServerVariables")
+    void shouldNotGenerateGameForPremierLeague_whenBettingServerPortOrIpIsBlank(
+            String serverIp, String serverPort, int timesOfPostJsonMessageInvocation) throws IOException {
+
+        //given
+        Team chelseaTeam = Team.builder().id(1L).name("Chelsea").build();
+        Team westHamTeam = Team.builder().id(2L).name("West Ham").build();
+        Team arsenalTeam = Team.builder().id(3L).name("Arsenal").build();
+        Team crystalPalaceTeam = Team.builder().id(4L).name("Crystal Palace").build();
+        Set<Team> teamSet = Sets.newSet(chelseaTeam, westHamTeam, arsenalTeam, crystalPalaceTeam);
+
+        Competition premierLeagueTournament = Competition.builder()
+                .id(11L).type(CompetitionType.LEAGUE)
+                .name("Premier League").teams(teamSet).build();
+        teamSet.forEach(t -> t.setCompetitions(Sets.newSet(premierLeagueTournament)));
+
+        Game chelseaVsWestHamGame = Game.builder().id(21L).competition(premierLeagueTournament).teamHome(chelseaTeam).teamAway(westHamTeam).status(GameStatus.PREMATCH).build();
+        Game arsenalVsCrystalPalaceGame = Game.builder().id(22L).competition(premierLeagueTournament).teamHome(arsenalTeam).teamAway(crystalPalaceTeam).status(GameStatus.PREMATCH).build();
+        Set<Game> gameSet = Sets.newSet(chelseaVsWestHamGame, arsenalVsCrystalPalaceGame);
+
+        doReturn(premierLeagueTournament).when(competitionService).findByName("Premier League");
+        doReturn(teamSet).when(teamService).findAllByCompetitions(premierLeagueTournament);
+        doReturn(chelseaVsWestHamGame).when(gameService).save(any());
+        doReturn(gameSet).when(gameService).saveAll(gameSet);
+        doReturn(Odd.builder().build()).when(oddService).save(any());
+        doNothing().when(httpPostService).postJsonMessage(any(), anyString());
+
+        fakeFootballService.setBettingServerPort(serverPort);
+        fakeFootballService.setBettingServerIp(serverIp);
+
+        //when
+        fakeFootballService.generateGamesForPremierLeague();
+
+        //then
+        verify(httpPostService, times(timesOfPostJsonMessageInvocation)).postJsonMessage(any(), anyString());
+    }
+
+    private static Stream<Arguments> getBettingServerVariables() {
+        return Stream.of(
+                Arguments.of("", "", 0),
+                Arguments.of(null, "", 0),
+                Arguments.of("", null, 0),
+                Arguments.of(null, null, 0),
+                Arguments.of("ip", "", 0),
+                Arguments.of("ip", null, 0),
+                Arguments.of(null, "port", 0),
+                Arguments.of("", "port", 0),
+                Arguments.of("ip", "port", 2)
+        );
+    }
+
+    @Test
+    void shouldNotGenerateGamesForFaCup_whenGamesWithOddsAreNotAvailable() {
+        //given
+        competition.setTeams(new HashSet<>());
+        doReturn(competition).when(competitionService).findByName(anyString());
+
+        //when
+        fakeFootballService.generateGamesForFaCup();
+
+        //then
+        verify(competitionService, times(1)).findByName(anyString());
+        verify(jmsService, never()).sendJsonMessage(anyString(), any());
+    }
+
+    @Test
+    void shouldNotGenerateGamesForPremierLeague_whenGamesWithOddsAreNotAvailable() throws IOException {
+        //given
+        competition.setTeams(new HashSet<>());
+        doReturn(competition).when(competitionService).findByName(anyString());
+
+        //when
+        fakeFootballService.generateGamesForFaCup();
+
+        //then
+        verify(competitionService, times(1)).findByName(anyString());
+        verify(httpPostService, never()).postJsonMessage(any(), anyString());
     }
 }

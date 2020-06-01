@@ -9,7 +9,7 @@ import java.util.Set;
 public interface FakeService {
     Set<Game> generateGames(Competition competition);
 
-    Set<Game> generateOdds(Set<Game> games);
+    Game generateOdds(Game game);
 
     Set<ResultFootball> generateResults(Set<Game> games);
 

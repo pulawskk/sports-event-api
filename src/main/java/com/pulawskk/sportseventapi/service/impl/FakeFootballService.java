@@ -23,6 +23,14 @@ import java.util.stream.IntStream;
 @Service
 public class FakeFootballService implements FakeService, JsonUtil {
 
+    void setBettingServerIp(String bettingServerIp) {
+        this.bettingServerIp = bettingServerIp;
+    }
+
+    void setBettingServerPort(String bettingServerPort) {
+        this.bettingServerPort = bettingServerPort;
+    }
+
     @Value("${betting.serverip}")
     private String bettingServerIp;
 
@@ -81,7 +89,6 @@ public class FakeFootballService implements FakeService, JsonUtil {
             game.setEndDate(LocalDateTime.now().plusMinutes(5));
             game.setCompetition(competition);
             teams.remove(teamA);
-            return;
         });
 
         generatedGames.forEach(game -> {
@@ -105,38 +112,35 @@ public class FakeFootballService implements FakeService, JsonUtil {
 
     @Override
     @Transactional
-    public Set<Game> generateOdds(Set<Game> games) {
-        if (games != null && games.size() > 0) {
-            games.forEach(game -> {
-                Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
-                oddH.setValue(generateRandomValueForOdds());
-                Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
-                oddA.setValue(generateRandomValueForOdds());
-                Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
-                oddX.setValue(generateRandomValueForOdds());
-                Set<Odd> odds = new HashSet<>();
-                oddH.setGame(game);
-                oddX.setGame(game);
-                oddA.setGame(game);
-                odds.add(oddA);
-                odds.add(oddX);
-                odds.add(oddH);
-                Odd savedOddA = oddService.save(oddA);
-                Odd savedOddX = oddService.save(oddX);
-                Odd savedOddH = oddService.save(oddH);
-                oddA.setId(savedOddA.getId());
-                oddH.setId(savedOddH.getId());
-                oddX.setId(savedOddX.getId());
-                game.setOdds(odds);
-            });
-
-            games.forEach(game -> {
-                game.setStatus(GameStatus.PREMATCH);
-            });
-            gameService.saveAll(games);
+    public Game generateOdds(Game game) {
+        if (game == null) {
+            return game;
         }
 
-        return games;
+        Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
+
+        oddH.setValue(generateRandomValueForOdds());
+        Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
+        oddA.setValue(generateRandomValueForOdds());
+        Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
+        oddX.setValue(generateRandomValueForOdds());
+        Set<Odd> odds = new HashSet<>();
+        oddH.setGame(game);
+        oddX.setGame(game);
+        oddA.setGame(game);
+        odds.add(oddA);
+        odds.add(oddX);
+        odds.add(oddH);
+        Odd savedOddA = oddService.save(oddA);
+        Odd savedOddX = oddService.save(oddX);
+        Odd savedOddH = oddService.save(oddH);
+        oddA.setId(savedOddA.getId());
+        oddH.setId(savedOddH.getId());
+        oddX.setId(savedOddX.getId());
+        game.setOdds(odds);
+        game.setStatus(GameStatus.PREMATCH);
+        gameService.save(game);
+        return game;
     }
 
     @Override
@@ -227,13 +231,10 @@ public class FakeFootballService implements FakeService, JsonUtil {
         if (gamesWithOutOdds.size() == 0) {
             return;
         }
-        Optional.ofNullable(gamesWithOutOdds.size()).ifPresent(s -> {
-            if(s > 0) {
-               Set<Game> games = generateOdds(gamesWithOutOdds);
-               games.forEach(game -> {
-                   jmsService.sendJsonMessage(queueName, generateJsonFromGame(game));
-               });
-            }
+
+        gamesWithOutOdds.forEach(g -> {
+            Game game = generateOdds(g);
+            jmsService.sendJsonMessage(queueName, generateJsonFromGame(game));
         });
     }
 
@@ -261,18 +262,14 @@ public class FakeFootballService implements FakeService, JsonUtil {
         if (gamesWithOutOdds.size() == 0) {
             return;
         }
-        Optional.ofNullable(gamesWithOutOdds.size()).ifPresent(s -> {
-            if(s > 0) {
-                Set<Game> games = generateOdds(gamesWithOutOdds);
-                games.forEach(game -> {
-                    postGameMsg(game);
-                });
-            }
+        gamesWithOutOdds.forEach(g -> {
+            Game game = generateOdds(g);
+            postGameMsg(game);
         });
     }
 
     private void postGameMsg(Game game) {
-        if (bettingServerIp.isBlank() || bettingServerPort.isBlank()) {
+        if (bettingServerIp == null || bettingServerPort == null || bettingServerIp.isBlank() || bettingServerPort.isBlank()) {
             //todo throw exception
             //todo make method generic
             System.out.println("Could not send a message. Betting ip or server is not valid.");
