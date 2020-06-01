@@ -239,19 +239,17 @@ public class FakeFootballService implements FakeService, JsonUtil {
     }
 
     @Scheduled(cron = "0 15/20 8-20 * * ?")
-    void generateResultsForInplayGamesForFaCup() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
+    void generateResultsForInplayGamesForFaCup() {
         String queueName = "FA CUP result";
 
         Competition competition = competitionService.findByName("FA Cup");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());
 
-        Optional.ofNullable(inplayGames.size()).ifPresent(s -> {
-            if(s > 0) {
-                Set<ResultFootball> resultsFootball = generateResults(inplayGames);
-                resultsFootball.forEach(result -> {
-                    jmsService.sendJsonMessage(queueName, generateJsonFromResult(result));
-                });
-            }
+        inplayGames.forEach(g -> {
+            Set<ResultFootball> resultsFootball = generateResults(inplayGames);
+            resultsFootball.forEach(result -> {
+                jmsService.sendJsonMessage(queueName, generateJsonFromResult(result));
+            });
         });
     }
 
@@ -284,7 +282,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
     }
 
     @Scheduled(cron = "0 2/4 8-20 * * ?")
-    void generateResultsForInplayGamesForPremierLeague() throws IOException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException { ;
+    void generateResultsForInplayGamesForPremierLeague() {
 
         Competition competition = competitionService.findByName("Premier League");
         Set<Game> inplayGames = gameService.findAllGeneratedGamesForCompetition(competition.getId());

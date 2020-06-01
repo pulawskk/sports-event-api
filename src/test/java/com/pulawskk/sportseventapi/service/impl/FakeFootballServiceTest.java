@@ -6,7 +6,6 @@ import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +15,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.collections.Sets;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -421,5 +419,103 @@ class FakeFootballServiceTest {
         //then
         verify(competitionService, times(1)).findByName(anyString());
         verify(httpPostService, never()).postJsonMessage(any(), anyString());
+    }
+
+    @Test
+    void shouldGenerateResultsForFaCup_whenInplayGameExist() {
+        //given
+        competition.setType(CompetitionType.TOURNAMENT_ROUNDS);
+        competition.setName("FA Cup");
+        competition.setTeams(Sets.newSet(chelseaTeam, arsenalTeam));
+        Set<Game> generatedGames = Sets.newSet(
+                Game.builder().competition(competition).teamHome(chelseaTeam).teamAway(arsenalTeam).build());
+
+        doReturn(Competition.builder().id(11L).build()).when(competitionService).findByName(anyString());
+        doReturn(generatedGames).when(gameService).findAllGeneratedGamesForCompetition(anyLong());
+
+        GameReportFootball gameReportFootball1Saved = GameReportFootball.builder().id(3L).build();
+        doReturn(gameReportFootball1Saved).when(gameReportFootballService).save(any());
+        chelseaTeam.setCompetitions(Sets.newSet(competition));
+        doReturn(chelseaTeam).when(teamService).findByName(anyString());
+
+        //when
+        fakeFootballService.generateResultsForInplayGamesForFaCup();
+
+        //then
+        verify(competitionService, times(1)).findByName(anyString());
+        verify(gameService, times(1)).findAllGeneratedGamesForCompetition(11L);
+        verify(jmsService, times(generatedGames.size())).sendJsonMessage(anyString(), any());
+    }
+
+    @Test
+    void shouldNotGenerateResultsForFaCup_whenInplayGameNotExist() {
+        //given
+        Set<Game> generatedGames = Sets.newSet();
+
+        doReturn(Competition.builder().id(11L).build()).when(competitionService).findByName(anyString());
+        doReturn(generatedGames).when(gameService).findAllGeneratedGamesForCompetition(anyLong());
+
+        //when
+        fakeFootballService.generateResultsForInplayGamesForFaCup();
+
+        //then
+        verify(competitionService, times(1)).findByName(anyString());
+        verify(gameService, times(1)).findAllGeneratedGamesForCompetition(11L);
+        verify(jmsService, never()).sendJsonMessage(anyString(), any());
+    }
+
+    @Test
+    void shouldGenerateResultsForPremierLeague_whenInplayGameExist() throws IOException {
+        //given
+        competition.setType(CompetitionType.LEAGUE);
+        competition.setName("Premier League");
+        competition.setTeams(Sets.newSet(chelseaTeam, arsenalTeam));
+        Set<Game> generatedGames = Sets.newSet(
+                Game.builder().competition(competition).teamHome(chelseaTeam).teamAway(arsenalTeam).build());
+
+        doReturn(Competition.builder().id(11L).build()).when(competitionService).findByName(anyString());
+        doReturn(generatedGames).when(gameService).findAllGeneratedGamesForCompetition(anyLong());
+
+        GameReportFootball gameReportFootball1Saved = GameReportFootball.builder().id(3L).build();
+        doReturn(gameReportFootball1Saved).when(gameReportFootballService).save(any());
+        chelseaTeam.setCompetitions(Sets.newSet(competition));
+        doReturn(chelseaTeam).when(teamService).findByName(anyString());
+
+        fakeFootballService.setBettingServerIp("ip");
+        fakeFootballService.setBettingServerPort("port");
+
+        //when
+        fakeFootballService.generateResultsForInplayGamesForPremierLeague();
+
+        //then
+        verify(competitionService, times(1)).findByName(anyString());
+        verify(gameService, times(1)).findAllGeneratedGamesForCompetition(11L);
+        verify(httpPostService, times(generatedGames.size())).postJsonMessage(any(), anyString());
+    }
+
+    @Test
+    void shouldNotGenerateResultsForPremierLeague_whenInplayGameNotExist() throws IOException {
+        //given
+        Set<Game> generatedGames = Sets.newSet();
+
+        doReturn(Competition.builder().id(11L).build()).when(competitionService).findByName(anyString());
+        doReturn(generatedGames).when(gameService).findAllGeneratedGamesForCompetition(anyLong());
+
+        //when
+        fakeFootballService.generateResultsForInplayGamesForPremierLeague();
+
+        //then
+        verify(competitionService, times(1)).findByName(anyString());
+        verify(gameService, times(1)).findAllGeneratedGamesForCompetition(11L);
+        verify(httpPostService, never()).postJsonMessage(any(), anyString());
+    }
+
+    @Test
+    void shouldDeleteOldGames_whenEnoughGamesExists() {
+        //when
+        fakeFootballService.deleteOldGames();
+
+        //then
+        verify(gameService, times(1)).deleteOldGames(100);
     }
 }
