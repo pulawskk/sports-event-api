@@ -1,9 +1,14 @@
 package com.pulawskk.sportseventapi.controller;
 
+import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.service.impl.GameReportFootballFootballService;
 import com.pulawskk.sportseventapi.service.impl.GameServiceImpl;
 import com.pulawskk.sportseventapi.service.impl.ResultFootballService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/events")
@@ -22,11 +27,12 @@ public class SportsEventApiController {
     }
 
     @GetMapping(value = "/{competitionId}/games")
-    public String apiEventsGeneratedGamesForCompetition(@PathVariable("competitionId") Long competitionId) {
-        return gameService.generateJsonForInplayGamesForCompetition(competitionId).toString();
+    public ResponseEntity<List<Game>> apiEventsGeneratedGamesForCompetition(@PathVariable("competitionId") Long competitionId) {
+        List<Game> inplayGames = gameService.generateJsonForInplayGamesForCompetition(competitionId);
+        return new ResponseEntity<>(inplayGames, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/results")
+    @GetMapping(value = "/results", produces = "application/json")
     public String apiEventsResultedGames() {
         return resultFootballService.generateJsonForAllResults().toString();
     }

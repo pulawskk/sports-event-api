@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.service.impl;
 
+import com.google.common.collect.Lists;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
 import com.pulawskk.sportseventapi.enums.GameOddType;
@@ -78,7 +79,7 @@ public class GameServiceImpl implements GameService, JsonUtil {
     }
 
     @Transactional
-    public List<JSONObject> generateJsonForInplayGamesForCompetition(Long competitionId) throws JSONException {
+    public List<Game> generateJsonForInplayGamesForCompetition(Long competitionId) throws JSONException {
         Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
         List<JSONObject> generatedGames = new ArrayList<>();
 
@@ -87,9 +88,12 @@ public class GameServiceImpl implements GameService, JsonUtil {
                 generatedGames.add(generateJsonFromGame(game));
             });
         }
-        JSONObject jsonInfo = new JSONObject();
-        jsonInfo.put("gamesNumber", currentGamesFromDb.size());
-        generatedGames.add(jsonInfo);
-        return generatedGames;
+
+        return Lists.newArrayList(currentGamesFromDb);
+
+//        JSONObject jsonInfo = new JSONObject();
+//        jsonInfo.put("gamesNumber", currentGamesFromDb.size());
+//        generatedGames.add(jsonInfo);
+//        return generatedGames;
     }
 }
