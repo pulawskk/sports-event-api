@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class Team {
             joinColumns = {@JoinColumn(name = "teams_id")},
             inverseJoinColumns = {@JoinColumn(name="competitions_id")}
     )
+    @JsonManagedReference
     private Set<Competition> competitions = new HashSet<>();
 
     @Builder

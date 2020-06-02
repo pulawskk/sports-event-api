@@ -1,5 +1,7 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pulawskk.sportseventapi.enums.CompetitionType;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +32,7 @@ public class Competition {
     private CompetitionType type;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "competitions", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonBackReference
     private Set<Team> teams = new HashSet<>();
 
     @Builder

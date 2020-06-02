@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import lombok.Builder;
@@ -47,6 +48,7 @@ public class Game {
     private LocalDateTime endDate;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<Odd> odds = new HashSet<>();
 
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)

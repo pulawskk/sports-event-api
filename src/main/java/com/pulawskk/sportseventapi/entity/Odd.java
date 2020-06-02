@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class Odd {
 
     @ManyToOne
     @JoinColumn(name = "games_id")
+    @JsonBackReference
     private Game game;
 
     @Builder
