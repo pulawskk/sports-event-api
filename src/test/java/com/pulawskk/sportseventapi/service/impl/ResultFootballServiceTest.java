@@ -4,7 +4,6 @@ import com.pulawskk.sportseventapi.entity.*;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.repository.ResultFootballRepository;
 import org.assertj.core.util.Lists;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -137,16 +136,16 @@ class ResultFootballServiceTest {
     }
 
     @Test
-    void shouldReturnJsonWithInfoAboutNumberSizeZero_whenThereIsNoResult() {
+    void shouldReturnEmptyList_whenThereIsNoResult() {
         //given
         doReturn(new HashSet<>()).when(resultFootballRepository).findAllResultsForCompetition(anyLong());
 
         //when
-        List<JSONObject> results = resultFootballService.generateJsonForResultsForCompetition(anyLong());
+        List<ResultFootball> results = resultFootballService.generateResultsForCompetition(anyLong());
 
         //then
         assertAll(() -> {
-            assertThat(results.size(), is(1));
+            assertThat(results.size(), is(0));
         });
 
         verify(resultFootballRepository, times(1)).findAllResultsForCompetition(anyLong());

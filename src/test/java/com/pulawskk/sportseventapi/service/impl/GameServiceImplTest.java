@@ -9,7 +9,6 @@ import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.OddRepository;
 import org.assertj.core.util.Lists;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -19,11 +18,11 @@ import org.mockito.internal.util.collections.Sets;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -221,7 +220,7 @@ class GameServiceImplTest {
     }
 
     @Test
-    void shouldGenerateJsonListWithGamesForCompetition_whenCompetitionIdIsPassedAndGameSetSizeIsPositive() {
+    void shouldGenerateListWithGamesForCompetition_whenCompetitionIdIsPassedAndGameSetSizeIsPositive() {
         //given
         Game game = Game.builder()
                 .id(1L)
@@ -241,23 +240,23 @@ class GameServiceImplTest {
                 .when(gameRepository).findAllGeneratedGames(anyLong());
 
         //when
-//        List<JSONObject> generatedGames = gameServiceImpl.generateJsonForInplayGamesForCompetition(anyLong());
+        List<Game> generatedGames = gameServiceImpl.generateInplayGamesForCompetition(anyLong());
 
         //then
-//        assertThat(generatedGames.size(), is(2));
+        assertThat(generatedGames.size(), is(1));
         verify(gameRepository, times(1)).findAllGeneratedGames(anyLong());
     }
 
     @Test
-    void shouldNotGenerateJsonListWithGamesForCompetition_whenCompetitionIdIsPassedAndGameSetSizeIsZero() {
+    void shouldNotGenerateListWithGamesForCompetition_whenCompetitionIdIsPassedAndGameSetSizeIsZero() {
         //given
         doReturn(Lists.emptyList()).when(gameRepository).findAllGeneratedGames(anyLong());
 
         //when
-//        List<JSONObject> generatedGames = gameServiceImpl.generateJsonForInplayGamesForCompetition(anyLong());
+        List<Game> generatedGames = gameServiceImpl.generateInplayGamesForCompetition(anyLong());
 
         //then
-//        assertThat(generatedGames.size(), is(1));
+        assertThat(generatedGames.size(), is(0));
         verify(gameRepository, times(1)).findAllGeneratedGames(anyLong());
     }
 }

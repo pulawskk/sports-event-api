@@ -52,6 +52,7 @@ public class Game {
     private Set<Odd> odds = new HashSet<>();
 
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private ResultFootball resultFootball;
 
     @Column(name = "status")

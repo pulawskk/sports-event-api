@@ -3,7 +3,6 @@ package com.pulawskk.sportseventapi.service.impl;
 import com.google.common.collect.Lists;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
-import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.repository.GameRepository;
 import com.pulawskk.sportseventapi.repository.OddRepository;
 import com.pulawskk.sportseventapi.service.GameService;
@@ -13,7 +12,10 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,7 +81,7 @@ public class GameServiceImpl implements GameService, JsonUtil {
     }
 
     @Transactional
-    public List<Game> generateJsonForInplayGamesForCompetition(Long competitionId) throws JSONException {
+    public List<Game> generateInplayGamesForCompetition(Long competitionId) throws JSONException {
         Set<Game> currentGamesFromDb = findAllGeneratedGamesForCompetition(competitionId);
         List<JSONObject> generatedGames = new ArrayList<>();
 

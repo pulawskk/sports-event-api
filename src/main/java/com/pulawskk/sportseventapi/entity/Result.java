@@ -1,5 +1,6 @@
 package com.pulawskk.sportseventapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class Result {
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "game_id", referencedColumnName = "id")
+    @JsonBackReference
     private Game game;
 
     public Result(Long id, Game game) {
