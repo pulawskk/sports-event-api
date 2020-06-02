@@ -1,13 +1,16 @@
 package com.pulawskk.sportseventapi.controller;
 
 import com.pulawskk.sportseventapi.entity.*;
+import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.impl.GameReportFootballFootballService;
 import com.pulawskk.sportseventapi.service.impl.GameServiceImpl;
 import com.pulawskk.sportseventapi.service.impl.ResultFootballService;
+import org.assertj.core.util.Lists;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -23,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,6 +52,7 @@ class SportsEventApiControllerTest {
     private Set<Game> gamesWithoutOdds;
     private Set<Game> gamesWithOdds;
     private Set<ResultFootball> results;
+    private List<Game> inplayGames;
 
     @BeforeEach
     void setUp() {
@@ -67,7 +71,7 @@ class SportsEventApiControllerTest {
         teams.add(arsenal);
         teams.add(everton);
         teams.add(norwich);
-        competition = Competition.builder().id(1L).name("FA CUP").teams(teams).build();
+        competition = Competition.builder().id(1L).name("FA CUP").type(CompetitionType.TOURNAMENT_ROUNDS).teams(teams).build();
         Set<Competition> competitions = new HashSet<>();
         competitions.add(competition);
         chelsea.setCompetitions(competitions);
@@ -79,9 +83,11 @@ class SportsEventApiControllerTest {
         gamesWithOdds = new HashSet<>();
 
         Game firstGame = Game.builder().id(1L).teamHome(chelsea).teamAway(arsenal)
+                .competition(competition)
                 .status(GameStatus.PREMATCH)
                 .build();
         Game secondGame = Game.builder().id(2L).teamHome(everton).teamAway(norwich)
+                .competition(competition)
                 .status(GameStatus.PREMATCH)
                 .build();
         gamesWithoutOdds.add(firstGame);
@@ -112,6 +118,8 @@ class SportsEventApiControllerTest {
         gamesWithOdds.add(firstGame);
         gamesWithOdds.add(secondGame);
 
+        inplayGames = Lists.newArrayList(gamesWithOdds);
+
         results = new HashSet<>();
 
         GameReportFootball gameFirstReportFootball = GameReportFootball.builder().id(1L)
@@ -136,30 +144,42 @@ class SportsEventApiControllerTest {
 
     @Test
     void shouldReturnJsonWithGames_whenPrematchGamesForExistCompetition() throws Exception {
-        List<JSONObject> jsonGames = new ArrayList<>();
-
-        gamesWithOdds.forEach(game -> {
-            jsonGames.add(gameService.generateJsonFromGame(game));
-        });
-        when(gameService.generateJsonForInplayGamesForCompetition(anyLong())).thenReturn(jsonGames);
+        when(gameService.generateJsonForInplayGamesForCompetition(anyLong())).thenReturn(inplayGames);
 
         mockMvc.perform(get("/api/events/1/games")
                 .accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
-                .andExpect(status().isOk());
+                .andExpect(jsonPath("$[0]['id']", is(inplayGames.get(0).getId().intValue())))
+                .andExpect(jsonPath("$[0]['uniqueId']", is(inplayGames.get(0).getUniqueId())))
+                .andExpect(jsonPath("$[0]['status']", is(inplayGames.get(0).getStatus().toString())))
+                .andExpect(jsonPath("$[0]['startDate']", is(inplayGames.get(0).getStartDate())))
+                .andExpect(jsonPath("$[0]['endDate']", is(inplayGames.get(0).getEndDate())))
+                .andExpect(jsonPath("$[0]['resultFootball']", isEmptyOrNullString()))
+                .andExpect(jsonPath("$[0]['teamHome']['name']", is(inplayGames.get(0).getTeamHome().getName())))
+                .andExpect(jsonPath("$[0]['teamAway']['name']", is(inplayGames.get(0).getTeamAway().getName())))
+                .andExpect(jsonPath("$[0]['competition']['name']", is(inplayGames.get(0).getCompetition().getName())))
+                .andExpect(jsonPath("$[0]['competition']['type']", is(inplayGames.get(0).getCompetition().getType().toString())));
     }
 
     @Test
+    @Disabled
     void shouldReturnJsonWithResults_whenEnterApiEventsResults() throws Exception {
         when(resultFootballService.findAllResultsForCompetition(any())).thenReturn(results);
 
         mockMvc.perform(get("/api/events/results")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$..homeRedCards", is(String.valueOf(results.iterator().next().getGameReport().getRCardHome()))));
     }
+
+    //results example:
+
+    //results for competition
+
+    //games for competition
+
 
     @Test
     void shouldReturnJsonWithResults_whenEnterApiEventsResultsForCompetition() throws Exception {
@@ -167,7 +187,6 @@ class SportsEventApiControllerTest {
 
         mockMvc.perform(get("/api/events/1/results")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=ISO-8859-1"))
                 .andExpect(status().isOk());
     }
