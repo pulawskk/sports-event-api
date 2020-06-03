@@ -21,6 +21,15 @@ public class ResultFootballService implements ResultService, JsonUtil {
         this.resultFootballRepository = resultFootballRepository;
     }
 
+    @Override
+    public ResultFootball findResultByGameUniqueId(String uniqueId) {
+        ResultFootball resultFootball = resultFootballRepository.findByGameUniqueId(uniqueId);
+        if (resultFootball != null) {
+            return resultFootball;
+        }
+        return ResultFootball.builder().build();
+    }
+
     public ResultFootball findById(Long id) {
         return resultFootballRepository.findById(id).orElse(null);
     }

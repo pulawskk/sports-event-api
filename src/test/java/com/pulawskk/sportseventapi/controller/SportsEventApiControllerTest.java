@@ -138,7 +138,7 @@ class SportsEventApiControllerTest {
     void shouldReturnJsonWithGames_whenPrematchGamesForExistCompetition() throws Exception {
         doReturn(inplayGames).when(gameService).generateInplayGamesForCompetition(anyLong());
 
-        mockMvc.perform(get("/api/events/1/games")
+        mockMvc.perform(get("/api/events/games/" + competition.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
@@ -184,7 +184,7 @@ class SportsEventApiControllerTest {
     void shouldReturnJsonWithResults_whenEnterApiEventsResultsForCompetition() throws Exception {
         doReturn(results).when(resultFootballService).generateResultsForCompetition(anyLong());
 
-        mockMvc.perform(get("/api/events/1/results")
+        mockMvc.perform(get("/api/events/results/" + competition.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
