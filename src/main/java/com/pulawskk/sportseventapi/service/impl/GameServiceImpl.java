@@ -29,15 +29,27 @@ public class GameServiceImpl implements GameService, JsonUtil {
         this.oddRepository = oddRepository;
     }
 
+    @Override
+    public List<Game> findAll() {
+        return gameRepository.findAll();
+    }
+
     public Game findGameById(Long id) {
         return gameRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Game findGameByUniqueId(String uniqueId) {
+        Game game = gameRepository.findGameByUniqueId(uniqueId);
+        if (game != null) {
+            return game;
+        }
+        return Game.builder().build();
+    }
 
     public Set<Game> findAllByTeamAwayOrTeamHome(Long teamId) {
         return new HashSet<>(gameRepository.findAllByTeamAwayOrTeamHome(teamId));
     }
-
 
     public Set<Game> findAllByTeamHome(Team team) {
         return new HashSet<>(gameRepository.findAllByTeamHome(team));

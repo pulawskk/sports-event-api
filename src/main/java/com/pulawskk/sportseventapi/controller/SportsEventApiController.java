@@ -30,7 +30,13 @@ public class SportsEventApiController {
         this.resultFootballService = resultFootballService;
     }
 
-    @GetMapping(value = "/{competitionId}/games", produces = "application/json")
+    @GetMapping(value = "/games", produces = "application/json")
+    public ResponseEntity<List<Game>> apiEventsGeneratedGames() {
+        List<Game> inplayGames = gameService.findAll();
+        return new ResponseEntity<>(inplayGames, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/games/competition/{competitionId}", produces = "application/json")
     public ResponseEntity<List<Game>> apiEventsGeneratedGamesForCompetition(@PathVariable("competitionId") Long competitionId) {
         List<Game> inplayGames = gameService.generateInplayGamesForCompetition(competitionId);
         return new ResponseEntity<>(inplayGames, HttpStatus.OK);
@@ -42,9 +48,21 @@ public class SportsEventApiController {
         return new ResponseEntity<>(allResultsList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{competitionId}/results", produces = "application/json")
+    @GetMapping(value = "/results/competition/{competitionId}", produces = "application/json")
     public ResponseEntity<List<ResultFootball>> apiEventsResultedGamesForCompetition(@PathVariable("competitionId") Long competitionId) {
         List<ResultFootball> allResultsForCompetitionList = resultFootballService.generateResultsForCompetition(competitionId);
         return new ResponseEntity<>(allResultsForCompetitionList, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/games/{uniqueId}")
+    public ResponseEntity<Game> apiGameWithUniqueId(@PathVariable("uniqueId") String uniqueId) {
+        Game game = gameService.findGameByUniqueId(uniqueId);
+        return new ResponseEntity<>(game, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/results/{uniqueId}")
+    public ResponseEntity<ResultFootball> apiResultWithUniqueId(@PathVariable("uniqueId") String uniqueId) {
+        ResultFootball result = resultFootballService.findResultByGameUniqueId(uniqueId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

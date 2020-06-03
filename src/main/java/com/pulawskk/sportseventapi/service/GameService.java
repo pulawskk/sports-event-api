@@ -1,17 +1,20 @@
 package com.pulawskk.sportseventapi.service;
 
-import com.pulawskk.sportseventapi.entity.Competition;
 import com.pulawskk.sportseventapi.entity.Game;
 import com.pulawskk.sportseventapi.entity.Team;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
 public interface GameService {
 
+    List<Game> findAll();
+
     Game findGameById(Long id);
+
+    Game findGameByUniqueId(String uniqueId);
 
     Set<Game> findAllByTeamAwayOrTeamHome(Long teamId);
 

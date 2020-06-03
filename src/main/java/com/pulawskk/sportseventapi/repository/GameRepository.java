@@ -23,4 +23,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query(value = "select * from games where start_date < (select start_date from games order by start_date desc limit 1 OFFSET ?1)", nativeQuery = true)
     List<Game> findAllGamesToBeDeleted(int offset);
+
+    Game findGameByUniqueId(String uniqueId);
 }
