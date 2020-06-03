@@ -49,6 +49,11 @@ class SportsEventApiControllerTest {
     private List<ResultFootball> results;
     private List<Game> inplayGames;
 
+    private Game firstGame;
+    private Game secondGame;
+    ResultFootball resultFirstGame;
+    ResultFootball resultSecondGame;
+    
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -77,11 +82,12 @@ class SportsEventApiControllerTest {
         gamesWithoutOdds = new HashSet<>();
         gamesWithOdds = new HashSet<>();
 
-        Game firstGame = Game.builder().id(1L).teamHome(chelsea).teamAway(arsenal)
+        firstGame = Game.builder().id(1L).teamHome(chelsea).teamAway(arsenal)
+                .uniqueId("123uni4")
                 .competition(competition)
                 .status(GameStatus.PREMATCH)
                 .build();
-        Game secondGame = Game.builder().id(2L).teamHome(everton).teamAway(norwich)
+        secondGame = Game.builder().id(2L).teamHome(everton).teamAway(norwich)
                 .competition(competition)
                 .status(GameStatus.PREMATCH)
                 .build();
@@ -129,16 +135,16 @@ class SportsEventApiControllerTest {
                 .yCardAway(7).yCardHome(8)
                 .offsideAway(9).offsideHome(10).build();
 
-        ResultFootball resultFirstGame = ResultFootball.builder().id(1L).game(firstGame).gameReportFootball(gameFirstReportFootball).build();
-        ResultFootball resultSecondGame = ResultFootball.builder().id(2L).game(secondGame).gameReportFootball(gameSecondReportFootball).build();
+        resultFirstGame = ResultFootball.builder().id(1L).game(firstGame).gameReportFootball(gameFirstReportFootball).build();
+        resultSecondGame = ResultFootball.builder().id(2L).game(secondGame).gameReportFootball(gameSecondReportFootball).build();
         results = Lists.newArrayList(resultFirstGame, resultSecondGame);
     }
 
     @Test
-    void shouldReturnJsonWithGames_whenPrematchGamesForExistCompetition() throws Exception {
+    void shouldReturnGames_whenPrematchGamesForExistCompetition() throws Exception {
         doReturn(inplayGames).when(gameService).generateInplayGamesForCompetition(anyLong());
 
-        mockMvc.perform(get("/api/events/games/" + competition.getId())
+        mockMvc.perform(get("/api/events/games/competition/" + competition.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
@@ -157,7 +163,7 @@ class SportsEventApiControllerTest {
     }
 
     @Test
-    void shouldReturnJsonWithResults_whenEnterApiEventsResults() throws Exception {
+    void shouldReturnResults_whenEnterApiEventsResults() throws Exception {
         doReturn(results).when(resultFootballService).generateAllResults();
 
         mockMvc.perform(get("/api/events/results")
@@ -181,10 +187,33 @@ class SportsEventApiControllerTest {
     }
 
     @Test
-    void shouldReturnJsonWithResults_whenEnterApiEventsResultsForCompetition() throws Exception {
+    void shouldReturnGames_whenEnterApiEventsResults() throws Exception {
+        doReturn(inplayGames).when(gameService).findAll();
+
+        mockMvc.perform(get("/api/events/games")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]['id']", is(inplayGames.get(0).getId().intValue())))
+                .andExpect(jsonPath("$[0]['uniqueId']", is(inplayGames.get(0).getUniqueId())))
+                .andExpect(jsonPath("$[0]['status']", is(inplayGames.get(0).getStatus().toString())))
+                .andExpect(jsonPath("$[0]['startDate']", is(inplayGames.get(0).getStartDate())))
+                .andExpect(jsonPath("$[0]['endDate']", is(inplayGames.get(0).getEndDate())))
+                .andExpect(jsonPath("$[0]['resultFootball']", isEmptyOrNullString()))
+                .andExpect(jsonPath("$[0]['teamHome']['name']", is(inplayGames.get(0).getTeamHome().getName())))
+                .andExpect(jsonPath("$[0]['teamAway']['name']", is(inplayGames.get(0).getTeamAway().getName())))
+                .andExpect(jsonPath("$[0]['competition']['name']", is(inplayGames.get(0).getCompetition().getName())))
+                .andExpect(jsonPath("$[0]['competition']['type']", is(inplayGames.get(0).getCompetition().getType().toString())));
+
+        verify(gameService, times(1)).findAll();
+    }
+
+
+    @Test
+    void shouldReturnResults_whenEnterApiEventsResultsForCompetition() throws Exception {
         doReturn(results).when(resultFootballService).generateResultsForCompetition(anyLong());
 
-        mockMvc.perform(get("/api/events/results/" + competition.getId())
+        mockMvc.perform(get("/api/events/results/competition/" + competition.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
@@ -202,5 +231,51 @@ class SportsEventApiControllerTest {
                 .andExpect(jsonPath("$[0]['gameReport']['rcardAway']", is(results.get(0).getGameReport().getRCardAway())));
 
         verify(resultFootballService, times(1)).generateResultsForCompetition(anyLong());
+    }
+
+    @Test
+    void shouldReturnGame_whenEnterApiEventsGameForUniqueId() throws Exception {
+        doReturn(firstGame).when(gameService).findGameByUniqueId(firstGame.getUniqueId());
+
+        mockMvc.perform(get("/api/events/games/" + firstGame.getUniqueId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$['id']", is(firstGame.getId().intValue())))
+                .andExpect(jsonPath("$['uniqueId']", is(firstGame.getUniqueId())))
+                .andExpect(jsonPath("$['status']", is(firstGame.getStatus().toString())))
+                .andExpect(jsonPath("$['startDate']", is(firstGame.getStartDate())))
+                .andExpect(jsonPath("$['endDate']", is(firstGame.getEndDate())))
+                .andExpect(jsonPath("$['resultFootball']", isEmptyOrNullString()))
+                .andExpect(jsonPath("$['teamHome']['name']", is(firstGame.getTeamHome().getName())))
+                .andExpect(jsonPath("$['teamAway']['name']", is(firstGame.getTeamAway().getName())))
+                .andExpect(jsonPath("$['competition']['name']", is(firstGame.getCompetition().getName())))
+                .andExpect(jsonPath("$['competition']['type']", is(firstGame.getCompetition().getType().toString())));
+
+        verify(gameService, times(1)).findGameByUniqueId(firstGame.getUniqueId());
+    }
+
+    @Test
+    void shouldReturnResult_whenEnterApiEventsResultForUniqueId() throws Exception {
+        doReturn(resultFirstGame).when(resultFootballService).findResultByGameUniqueId(firstGame.getUniqueId());
+
+        mockMvc.perform(get("/api/events/results/" + firstGame.getUniqueId())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$['id']", is(resultFirstGame.getId().intValue())))
+                .andExpect(jsonPath("$['gameReport']['id']", is(resultFirstGame.getGameReport().getId().intValue())))
+                .andExpect(jsonPath("$['gameReport']['goalHome']", is(resultFirstGame.getGameReport().getGoalHome())))
+                .andExpect(jsonPath("$['gameReport']['goalAway']", is(resultFirstGame.getGameReport().getGoalAway())))
+                .andExpect(jsonPath("$['gameReport']['offsideHome']", is(resultFirstGame.getGameReport().getOffsideHome())))
+                .andExpect(jsonPath("$['gameReport']['offsideAway']", is(resultFirstGame.getGameReport().getOffsideAway())))
+                .andExpect(jsonPath("$['gameReport']['cornerHome']", is(resultFirstGame.getGameReport().getCornerHome())))
+                .andExpect(jsonPath("$['gameReport']['cornerAway']", is(resultFirstGame.getGameReport().getCornerAway())))
+                .andExpect(jsonPath("$['gameReport']['ycardHome']", is(resultFirstGame.getGameReport().getYCardHome())))
+                .andExpect(jsonPath("$['gameReport']['ycardAway']", is(resultFirstGame.getGameReport().getYCardAway())))
+                .andExpect(jsonPath("$['gameReport']['rcardHome']", is(resultFirstGame.getGameReport().getRCardHome())))
+                .andExpect(jsonPath("$['gameReport']['rcardAway']", is(resultFirstGame.getGameReport().getRCardAway())));
+
+        verify(resultFootballService, times(1)).findResultByGameUniqueId(firstGame.getUniqueId());        
     }
 }
