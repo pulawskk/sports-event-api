@@ -33,6 +33,7 @@ public class SportsEventApiController {
     @GetMapping(value = "/games", produces = "application/json")
     public ResponseEntity<List<Game>> apiEventsGeneratedGames() {
         List<Game> inplayGames = gameService.findAll();
+        inplayGames.sort((g1, g2) -> g2.getStartDate().compareTo(g1.getStartDate()));
         return new ResponseEntity<>(inplayGames, HttpStatus.OK);
     }
 

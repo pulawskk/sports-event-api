@@ -32,9 +32,9 @@ public interface JsonUtil {
         JSONObject jsonFromGame = new JSONObject();
         jsonFromGame.put("teamHome", game.getTeamHome().getName());
         jsonFromGame.put("teamAway", game.getTeamAway().getName());
-        jsonFromGame.put("oddsH", game.getOddByType(GameOddType.HOME_WIN).getValue());
-        jsonFromGame.put("oddsX", game.getOddByType(GameOddType.DRAW).getValue());
-        jsonFromGame.put("oddsA", game.getOddByType(GameOddType.AWAY_WIN).getValue());
+        jsonFromGame.put("oddsH", game.getOddByType(GameOddType.HOME_WIN).getValue().toString());
+        jsonFromGame.put("oddsX", game.getOddByType(GameOddType.DRAW).getValue().toString());
+        jsonFromGame.put("oddsA", game.getOddByType(GameOddType.AWAY_WIN).getValue().toString());
         jsonFromGame.put("gameStatus", game.getStatus().name());
         jsonFromGame.put("uniqueId", game.getUniqueId());
         jsonFromGame.put("competition", game.getCompetition().getName());

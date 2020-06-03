@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +20,11 @@ import java.util.stream.IntStream;
 
 @Service
 public class FakeFootballService implements FakeService, JsonUtil {
+
+    private final Integer MAX_HOME_EXPECTATION = 57/5;
+    private final Integer MAX_AWAY_EXPECTATION = 141/10;
+
+    private final Double BETTING_SITE_PERCENTAGE = 1.1;
 
     void setBettingServerIp(String bettingServerIp) {
         this.bettingServerIp = bettingServerIp;
@@ -116,31 +119,150 @@ public class FakeFootballService implements FakeService, JsonUtil {
         if (game == null) {
             return game;
         }
+        List<Game> lastHomeGamesForHomeTeam = new ArrayList<>(gameService.findAllByTeamHome(game.getTeamHome()));
+        List<Game> lastAwayGamesForAwayTeam = new ArrayList<>(gameService.findAllByTeamAway(game.getTeamAway()));
+        List<Game> lastGamesForHomeTeam = new ArrayList<>(gameService.findAllByTeamAwayOrTeamHome(game.getTeamHome().getId()));
+        List<Game> lastGamesForAwayTeam = new ArrayList<>(gameService.findAllByTeamAwayOrTeamHome(game.getTeamAway().getId()));
 
-        Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).build();
+        System.out.println("GAMES NUMBERS: " + lastHomeGamesForHomeTeam.size() + " | " + lastGamesForHomeTeam.size() + " | " +  lastAwayGamesForAwayTeam.size() + " | " + lastGamesForAwayTeam.size());
 
-        oddH.setValue(generateRandomValueForOdds());
-        Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).build();
-        oddA.setValue(generateRandomValueForOdds());
-        Odd oddX = Odd.builder().type(GameOddType.DRAW).build();
-        oddX.setValue(generateRandomValueForOdds());
-        Set<Odd> odds = new HashSet<>();
-        oddH.setGame(game);
-        oddX.setGame(game);
-        oddA.setGame(game);
-        odds.add(oddA);
-        odds.add(oddX);
-        odds.add(oddH);
-        Odd savedOddA = oddService.save(oddA);
-        Odd savedOddX = oddService.save(oddX);
-        Odd savedOddH = oddService.save(oddH);
-        oddA.setId(savedOddA.getId());
-        oddH.setId(savedOddH.getId());
-        oddX.setId(savedOddX.getId());
-        game.setOdds(odds);
+        final String homeTeamName = game.getTeamHome().getName();
+        final String awayTeamName = game.getTeamAway().getName();
+
+        int lastHomeGamesForHomeTeamPoints = lastHomeGamesForHomeTeam.stream()
+                .filter(g -> g.getStatus() == GameStatus.RESULTED)
+                .sorted((g1, g2) -> g2.getEndDate().compareTo(g1.getEndDate()))
+                .limit(3)
+                .map(g -> resultFootballService.findResultByGameUniqueId(g.getUniqueId()))
+                .mapToInt(r -> {
+                    int goalHome = r.getGameReport().getGoalHome();
+                    int goalAway = r.getGameReport().getGoalAway();
+                    if (goalHome > goalAway) {
+                        return 3;
+                    } else if (goalHome == goalAway) {
+                        return 1;
+                    } else return 0;
+                })
+                .sum();
+
+        int lastAwayGamesForAwayTeamPoints = lastAwayGamesForAwayTeam.stream()
+                .filter(g -> g.getStatus() == GameStatus.RESULTED)
+                .sorted((g1, g2) -> g2.getEndDate().compareTo(g1.getEndDate()))
+                .limit(3)
+                .map(g -> resultFootballService.findResultByGameUniqueId(g.getUniqueId()))
+                .mapToInt(r -> {
+                    int goalHome = r.getGameReport().getGoalHome();
+                    int goalAway = r.getGameReport().getGoalAway();
+                    if (goalHome < goalAway) {
+                        return 3;
+                    } else if (goalHome == goalAway) {
+                        return 1;
+                    } else return 0;
+                })
+                .sum();
+
+        int lastGamesForHomeTeamPoints = lastGamesForHomeTeam.stream()
+                .filter(g -> g.getStatus() == GameStatus.RESULTED)
+                .sorted((g1, g2) -> g2.getEndDate().compareTo(g1.getEndDate()))
+                .limit(5)
+                .map(g -> resultFootballService.findResultByGameUniqueId(g.getUniqueId()))
+                .mapToInt(r -> {
+                    int goalHome = r.getGameReport().getGoalHome();
+                    int goalAway = r.getGameReport().getGoalAway();
+                    if (goalHome == goalAway) {
+                        return 1;
+                    }
+                    if (r.getGame().getTeamHome().getName().equals(homeTeamName)) {
+                        if (goalHome > goalAway) {
+                            return 3;
+                        }
+                    } else {
+                        if (goalAway > goalHome) {
+                            return 3;
+                        }
+                    }
+                    return 0;
+                })
+                .sum();
+
+        int lastGamesForAwayTeamPoints = lastGamesForAwayTeam.stream()
+                .filter(g -> g.getStatus() == GameStatus.RESULTED)
+                .sorted((g1, g2) -> g2.getEndDate().compareTo(g1.getEndDate()))
+                .limit(5)
+                .map(g -> resultFootballService.findResultByGameUniqueId(g.getUniqueId()))
+                .mapToInt(r -> {
+                    int goalHome = r.getGameReport().getGoalHome();
+                    int goalAway = r.getGameReport().getGoalAway();
+                    if (goalHome == goalAway) {
+                        return 1;
+                    }
+                    if (r.getGame().getTeamAway().getName().equals(awayTeamName)) {
+                        if (goalAway > goalHome) {
+                            return 3;
+                        }
+                    } else {
+                        if (goalHome > goalAway) {
+                            return 3;
+                        }
+                    }
+                    return 0;
+                })
+                .sum();
+
+
+        double homeTeamLastThree = lastHomeGamesForHomeTeamPoints;
+        double homeTeamLastFive = lastGamesForHomeTeamPoints;
+        double awayTeamLastThree = lastAwayGamesForAwayTeamPoints;
+        double awayTeamLastFive = lastGamesForAwayTeamPoints;
+
+        System.out.println("POINTS: homeTeamLastThree-" + homeTeamLastThree + " homeTeamLastFive-" + homeTeamLastFive + " awayTeamLastThree-" + awayTeamLastThree + " awayTeamLastFive:" + awayTeamLastFive);
+
+        double homeExpectationPoints = homeTeamLastFive*0.4 + homeTeamLastThree*0.6;
+        double awayExpectationPoints = awayTeamLastFive*0.4 + awayTeamLastThree*0.6*1.5;
+
+        double homeExpectationPercentage = homeExpectationPoints / MAX_HOME_EXPECTATION;
+        double awayExpectationPercentage = awayExpectationPoints / MAX_AWAY_EXPECTATION;
+
+        calculateOdd(homeExpectationPercentage, awayExpectationPercentage, game);
+
         game.setStatus(GameStatus.PREMATCH);
-        gameService.save(game);
-        return game;
+        Game savedGame = gameService.save(game);
+        return savedGame;
+    }
+
+    private void calculateOdd(double homeExpactationPercentage, double awayExapctationPercentage, Game game) {
+        double difference = homeExpactationPercentage - awayExapctationPercentage;
+        double homeOdd = 0.0;
+        double awayOdd = 0.0;
+        double drawOdd = 0.0;
+
+        if(difference == 0) {
+            homeOdd = 2.5;
+            awayOdd = 2.5;
+        } else if (difference > 0) {
+            homeOdd = Math.exp(1-difference);
+            awayOdd = Math.pow(3,1+difference);
+        } else if (difference < 0) {
+            homeOdd = Math.pow(3,1+difference);
+            awayOdd = Math.exp(1-difference);
+        }
+
+        drawOdd = calculateDrawOdd(homeOdd, awayOdd);
+
+        Set<Odd> calculatedOdds = new HashSet<>();
+
+        Odd oddH = Odd.builder().type(GameOddType.HOME_WIN).value((new BigDecimal(homeOdd)).setScale(2, RoundingMode.CEILING)).game(game).build();
+        Odd oddA = Odd.builder().type(GameOddType.AWAY_WIN).value((new BigDecimal(awayOdd)).setScale(2, RoundingMode.CEILING)).game(game).build();
+        Odd oddD = Odd.builder().type(GameOddType.DRAW).value((new BigDecimal(drawOdd)).setScale(2, RoundingMode.CEILING)).game(game).build();
+        calculatedOdds.add(oddH);
+        calculatedOdds.add(oddA);
+        calculatedOdds.add(oddD);
+        System.out.println("CALCULATED ODDS: \thome: " + oddH.getValue() + "\tdraw: " + oddD.getValue() + "\taway: " + oddA.getValue());
+        game.setOdds(calculatedOdds);
+    }
+
+    private double calculateDrawOdd(double hOdd, double aOdd) {
+        return (hOdd * aOdd) / (BETTING_SITE_PERCENTAGE*aOdd*hOdd - aOdd - hOdd);
     }
 
     @Override
@@ -176,7 +298,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
 
                 game.setResultFootball(resultFootball);
                 game.setStatus(GameStatus.RESULTED);
-
+                gameService.save(game);
                 results.add(resultFootball);
             }
         }
@@ -253,7 +375,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         });
     }
 
-    @Scheduled(cron = "0 0/4 8-20 * * ?")
+    @Scheduled(cron = "0 0/4 8-23 * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
         Set<Game> gamesWithOutOdds = generateGames(competition);
