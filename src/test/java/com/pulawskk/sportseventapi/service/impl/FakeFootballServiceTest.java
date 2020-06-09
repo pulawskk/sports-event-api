@@ -390,6 +390,19 @@ class FakeFootballServiceTest {
         Game arsenalVsCrystalPalaceGame = Game.builder().id(22L).competition(premierLeagueTournament).teamHome(arsenalTeam).teamAway(crystalPalaceTeam).status(GameStatus.PREMATCH).build();
         Set<Game> gameSet = Sets.newSet(chelseaVsWestHamGame, arsenalVsCrystalPalaceGame);
 
+        Set<Odd> oddsChelseaGame = new HashSet<>();
+        oddsChelseaGame.add(Odd.builder().id(41L).type(GameOddType.HOME_WIN).value(new BigDecimal("1.4")).game(chelseaVsWestHamGame).build());
+        oddsChelseaGame.add(Odd.builder().id(42L).type(GameOddType.DRAW).value(new BigDecimal("3.4")).game(chelseaVsWestHamGame).build());
+        oddsChelseaGame.add(Odd.builder().id(43L).type(GameOddType.AWAY_WIN).value(new BigDecimal("5.6")).game(chelseaVsWestHamGame).build());
+
+        Set<Odd> oddsArsenalGame = new HashSet<>();
+        oddsArsenalGame.add(Odd.builder().id(44L).type(GameOddType.HOME_WIN).value(new BigDecimal("1.1")).game(arsenalVsCrystalPalaceGame).build());
+        oddsArsenalGame.add(Odd.builder().id(45L).type(GameOddType.DRAW).value(new BigDecimal("4.4")).game(arsenalVsCrystalPalaceGame).build());
+        oddsArsenalGame.add(Odd.builder().id(46L).type(GameOddType.AWAY_WIN).value(new BigDecimal("7.6")).game(arsenalVsCrystalPalaceGame).build());
+
+        chelseaVsWestHamGame.setOdds(oddsChelseaGame);
+        arsenalVsCrystalPalaceGame.setOdds(oddsArsenalGame);
+
         doReturn(premierLeagueTournament).when(competitionService).findByName("Premier League");
         doReturn(teamSet).when(teamService).findAllByCompetitions(premierLeagueTournament);
         doReturn(chelseaVsWestHamGame).when(gameService).save(any());
