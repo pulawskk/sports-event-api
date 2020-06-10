@@ -5,7 +5,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,8 @@ public class HttpPostServiceImpl implements HttpPostService {
         try {
             CloseableHttpResponse response = client.execute(httpPost);
         } catch (Exception e) {
-            System.out.println("Could not send a message due to: -> " + e.getMessage());
+            //AOP logging
+            System.out.println("COULDNT SEND");
         } finally {
             client.close();
         }

@@ -117,14 +117,35 @@ public class FakeFootballService implements FakeService, JsonUtil {
     @Transactional
     public Game generateOdds(Game game) {
         if (game == null) {
-            return game;
+            return null;
         }
-        List<Game> lastHomeGamesForHomeTeam = new ArrayList<>(gameService.findAllByTeamHome(game.getTeamHome()));
-        List<Game> lastAwayGamesForAwayTeam = new ArrayList<>(gameService.findAllByTeamAway(game.getTeamAway()));
-        List<Game> lastGamesForHomeTeam = new ArrayList<>(gameService.findAllByTeamAwayOrTeamHome(game.getTeamHome().getId()));
-        List<Game> lastGamesForAwayTeam = new ArrayList<>(gameService.findAllByTeamAwayOrTeamHome(game.getTeamAway().getId()));
 
-        System.out.println("GAMES NUMBERS: " + lastHomeGamesForHomeTeam.size() + " | " + lastGamesForHomeTeam.size() + " | " +  lastAwayGamesForAwayTeam.size() + " | " + lastGamesForAwayTeam.size());
+        Set<Game> lastHomeGamesForHomeTeamSet = gameService.findAllByTeamHome(game.getTeamHome());
+        Set<Game> lastAwayGamesForAwayTeamSet = gameService.findAllByTeamAway(game.getTeamAway());
+        Set<Game> lastGamesForHomeTeamSet = gameService.findAllByTeamAwayOrTeamHome(game.getTeamHome().getId());
+        Set<Game> lastGamesForAwayTeamSet = gameService.findAllByTeamAwayOrTeamHome(game.getTeamAway().getId());
+
+        List<Game> lastHomeGamesForHomeTeam = new ArrayList<>();
+        if (lastHomeGamesForHomeTeamSet != null) {
+            lastHomeGamesForHomeTeam = new ArrayList<>(lastHomeGamesForHomeTeamSet);
+        }
+
+        List<Game> lastAwayGamesForAwayTeam = new ArrayList<>();
+        if (lastAwayGamesForAwayTeamSet != null) {
+            lastAwayGamesForAwayTeam = new ArrayList<>(lastAwayGamesForAwayTeamSet);
+        }
+
+        List<Game> lastGamesForHomeTeam = new ArrayList<>();
+        if (lastGamesForHomeTeamSet != null) {
+            lastGamesForHomeTeam = new ArrayList<>(lastGamesForHomeTeamSet);
+        }
+
+        List<Game> lastGamesForAwayTeam = new ArrayList<>();
+        if (lastGamesForAwayTeamSet != null) {
+            lastGamesForAwayTeam = new ArrayList<>(lastGamesForAwayTeamSet);
+        }
+
+//        System.out.println("GAMES NUMBERS: " + lastHomeGamesForHomeTeam.size() + " | " + lastGamesForHomeTeam.size() + " | " +  lastAwayGamesForAwayTeam.size() + " | " + lastGamesForAwayTeam.size());
 
         final String homeTeamName = game.getTeamHome().getName();
         final String awayTeamName = game.getTeamAway().getName();
@@ -209,13 +230,12 @@ public class FakeFootballService implements FakeService, JsonUtil {
                 })
                 .sum();
 
-
         double homeTeamLastThree = lastHomeGamesForHomeTeamPoints;
         double homeTeamLastFive = lastGamesForHomeTeamPoints;
         double awayTeamLastThree = lastAwayGamesForAwayTeamPoints;
         double awayTeamLastFive = lastGamesForAwayTeamPoints;
 
-        System.out.println("POINTS: homeTeamLastThree-" + homeTeamLastThree + " homeTeamLastFive-" + homeTeamLastFive + " awayTeamLastThree-" + awayTeamLastThree + " awayTeamLastFive:" + awayTeamLastFive);
+//        System.out.println("POINTS: homeTeamLastThree-" + homeTeamLastThree + " homeTeamLastFive-" + homeTeamLastFive + " awayTeamLastThree-" + awayTeamLastThree + " awayTeamLastFive:" + awayTeamLastFive);
 
         double homeExpectationPoints = homeTeamLastFive*0.4 + homeTeamLastThree*0.6;
         double awayExpectationPoints = awayTeamLastFive*0.4 + awayTeamLastThree*0.6*1.5;
@@ -257,7 +277,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         calculatedOdds.add(oddH);
         calculatedOdds.add(oddA);
         calculatedOdds.add(oddD);
-        System.out.println("CALCULATED ODDS: \thome: " + oddH.getValue() + "\tdraw: " + oddD.getValue() + "\taway: " + oddA.getValue());
+//        System.out.println("CALCULATED ODDS: \thome: " + oddH.getValue() + "\tdraw: " + oddD.getValue() + "\taway: " + oddA.getValue());
         game.setOdds(calculatedOdds);
     }
 
@@ -375,7 +395,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         });
     }
 
-    @Scheduled(cron = "0 0/4 8-23 * * ?")
+    @Scheduled(cron = "0 0/4 8-20 * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
         Set<Game> gamesWithOutOdds = generateGames(competition);

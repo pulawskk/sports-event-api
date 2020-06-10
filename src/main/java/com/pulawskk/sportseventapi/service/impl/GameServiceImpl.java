@@ -55,11 +55,9 @@ public class GameServiceImpl implements GameService, JsonUtil {
         return new HashSet<>(gameRepository.findAllByTeamHome(team));
     }
 
-
     public Set<Game> findAllByTeamAway(Team team) {
         return new HashSet<>(gameRepository.findAllByTeamAway(team));
     }
-
 
     public Game save(Game game) {
         return gameRepository.save(game);
@@ -70,11 +68,9 @@ public class GameServiceImpl implements GameService, JsonUtil {
         return gameRepository.saveAll(games).stream().collect(Collectors.toSet());
     }
 
-
     public void deleteById(Long id) {
         gameRepository.deleteById(id);
     }
-
 
     public void delete(Game game) {
         gameRepository.delete(game);

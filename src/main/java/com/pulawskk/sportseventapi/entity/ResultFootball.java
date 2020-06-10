@@ -24,4 +24,21 @@ public class ResultFootball extends Result {
         super(id, game);
         this.gameReport = gameReportFootball;
     }
+
+    @Override
+    public String toString() {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer
+                .append("ResultFootball game id<")
+                .append(getGame().getUniqueId())
+                .append("> event: ")
+                .append(getGame().getTeamHome().getName())
+                .append(" ")
+                .append(getGameReport().getGoalHome())
+                .append("-")
+                .append(getGameReport().getGoalAway())
+                .append(" ")
+                .append(getGame().getTeamAway().getName());
+        return stringBuffer.toString();
+    }
 }
