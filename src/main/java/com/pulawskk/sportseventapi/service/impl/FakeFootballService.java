@@ -399,7 +399,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         });
     }
 
-    @Scheduled(cron = "0 0/4 8-20 * * ?")
+    @Scheduled(cron = "0 0/4 8-23 * * ?")
     void generateGamesForPremierLeague() {
         Competition competition = competitionService.findByName("Premier League");
         Set<Game> gamesWithOutOdds = generateGames(competition);
@@ -428,7 +428,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         }
     }
 
-    @Scheduled(cron = "0 2/4 8-20 * * ?")
+    @Scheduled(cron = "0 2/4 8-23 * * ?")
     void generateResultsForInplayGamesForPremierLeague() {
 
         Competition competition = competitionService.findByName("Premier League");
