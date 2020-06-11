@@ -100,6 +100,6 @@ create table if not exists results_football
         constraint fkpdn0o4c0yi0nov16qwk0fj8ai
             references game_reports_football
 );
-create index team_competition_idx on team_competition (teams_id);
-create index odd_game_idx on odds (games_id);
-create index game_team_competition_idx on games (competition_id, team_away_id, team_home_id);
+create index if not exists team_competition_idx on team_competition (teams_id);
+create index if not exists odd_game_idx on odds (games_id);
+create index if not exists game_team_competition_idx on games (competition_id, team_away_id, team_home_id);
