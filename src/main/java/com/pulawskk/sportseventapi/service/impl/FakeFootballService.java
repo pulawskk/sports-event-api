@@ -5,6 +5,8 @@ import com.pulawskk.sportseventapi.enums.CompetitionType;
 import com.pulawskk.sportseventapi.enums.GameOddType;
 import com.pulawskk.sportseventapi.enums.GameStatus;
 import com.pulawskk.sportseventapi.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class FakeFootballService implements FakeService, JsonUtil {
     private final Integer MAX_AWAY_EXPECTATION = 141/10;
 
     private final Double BETTING_SITE_PERCENTAGE = 1.1;
+
+    private final Logger logger = LoggerFactory.getLogger(FakeFootballService.class);
 
     void setBettingServerIp(String bettingServerIp) {
         this.bettingServerIp = bettingServerIp;
@@ -145,7 +149,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
             lastGamesForAwayTeam = new ArrayList<>(lastGamesForAwayTeamSet);
         }
 
-//        System.out.println("GAMES NUMBERS: " + lastHomeGamesForHomeTeam.size() + " | " + lastGamesForHomeTeam.size() + " | " +  lastAwayGamesForAwayTeam.size() + " | " + lastGamesForAwayTeam.size());
+        logger.info("["+getClass().getSimpleName()+"] method: generateOdds found game number for calculate odds: " + lastHomeGamesForHomeTeam.size() + " | " + lastGamesForHomeTeam.size() + " | " +  lastAwayGamesForAwayTeam.size() + " | " + lastGamesForAwayTeam.size());
 
         final String homeTeamName = game.getTeamHome().getName();
         final String awayTeamName = game.getTeamAway().getName();
@@ -235,8 +239,7 @@ public class FakeFootballService implements FakeService, JsonUtil {
         double awayTeamLastThree = lastAwayGamesForAwayTeamPoints;
         double awayTeamLastFive = lastGamesForAwayTeamPoints;
 
-//        System.out.println("POINTS: homeTeamLastThree-" + homeTeamLastThree + " homeTeamLastFive-" + homeTeamLastFive + " awayTeamLastThree-" + awayTeamLastThree + " awayTeamLastFive:" + awayTeamLastFive);
-
+        logger.info("["+getClass().getSimpleName()+"] method: generateOdds calculated points to generate odds: homeTeamLastThree-" + homeTeamLastThree + " homeTeamLastFive-" + homeTeamLastFive + " awayTeamLastThree-" + awayTeamLastThree + " awayTeamLastFive:" + awayTeamLastFive);
         double homeExpectationPoints = homeTeamLastFive*0.4 + homeTeamLastThree*0.6;
         double awayExpectationPoints = awayTeamLastFive*0.4 + awayTeamLastThree*0.6*1.5;
 
@@ -277,8 +280,9 @@ public class FakeFootballService implements FakeService, JsonUtil {
         calculatedOdds.add(oddH);
         calculatedOdds.add(oddA);
         calculatedOdds.add(oddD);
-//        System.out.println("CALCULATED ODDS: \thome: " + oddH.getValue() + "\tdraw: " + oddD.getValue() + "\taway: " + oddA.getValue());
         game.setOdds(calculatedOdds);
+
+        logger.info("[" + getClass().getSimpleName() + "] method: calculateOdd generated odds for game uniqueId: " + game.getUniqueId() + " with values: \thome: " + oddH.getValue() + "\tdraw: " + oddD.getValue() + "\taway: " + oddA.getValue());
     }
 
     private double calculateDrawOdd(double hOdd, double aOdd) {
@@ -412,12 +416,13 @@ public class FakeFootballService implements FakeService, JsonUtil {
         if (bettingServerIp == null || bettingServerPort == null || bettingServerIp.isBlank() || bettingServerPort.isBlank()) {
             //todo throw exception
             //todo make method generic
-            System.out.println("Could not send a message. Betting ip or server is not valid.");
+            logger.warn("["+getClass().getSimpleName()+"] method: postGameMsg could not send a message. Betting ip or server is not valid");
             return;
         }
         try {
             final String urlServerScheduled = "http://" + bettingServerIp + ":" + bettingServerPort + URL_SERVER_SCHEDULED;
             httpPostService.postJsonMessage(generateJsonFromGame(game), urlServerScheduled);
+            logger.info("["+getClass().getSimpleName()+"] method: postGameMsg sent a message with uniqueId: " + game.getUniqueId());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -443,12 +448,13 @@ public class FakeFootballService implements FakeService, JsonUtil {
         if (bettingServerIp.isBlank() || bettingServerPort.isBlank()) {
             //todo throw exception
             //todo make method generic
-            System.out.println("Could not send a message. Betting ip or server is not valid.");
+            logger.warn("["+getClass().getSimpleName()+"] method: postResultMsg could not send a message. Betting ip or server is not valid");
             return;
         }
         try {
             final String urlServerResult = "http://" + bettingServerIp + ":" + bettingServerPort + URL_SERVER_RESULT;
             httpPostService.postJsonMessage(generateJsonFromResult(result), urlServerResult);
+            logger.info("["+getClass().getSimpleName()+"] method: postResultMsg sent a message with uniqueId: " + result.getGame().getUniqueId());
         } catch (IOException e) {
             e.printStackTrace();
         }

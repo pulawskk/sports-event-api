@@ -6,6 +6,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,6 +18,8 @@ public class HttpPostServiceImpl implements HttpPostService {
 
     private final CloseableHttpClient client;
     private final HttpPost httpPost;
+
+    private final Logger logger = LoggerFactory.getLogger(HttpPostServiceImpl.class);
 
     public HttpPostServiceImpl(CloseableHttpClient client, HttpPost httpPost) {
         this.client = client;
@@ -32,8 +36,7 @@ public class HttpPostServiceImpl implements HttpPostService {
         try {
             CloseableHttpResponse response = client.execute(httpPost);
         } catch (Exception e) {
-            //AOP logging
-            System.out.println("COULDNT SEND");
+            logger.warn("["+getClass().getSimpleName()+"] method: postJsonMessage couldn't send a message due to: " + e.getMessage());
         } finally {
             client.close();
         }
