@@ -12,59 +12,58 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bsdb
     networks:
-      betting_network:
-        ipv4_address: 172.21.0.2
+      bs_network:
+        ipv4_address: 177.23.0.2
 
   bs:
     container_name: bsapp
-    image: pulawskk11/bettingsite:latest
+    image: pulawskk/bettingsite:0.0.1
     restart: always
     ports:
-      - '8081:8085'
+      - '8087:8085'
     depends_on:
       - bspostgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://bspostgres:5432/bsdb?useSSL=false
-      IPNETWORK_APP_BS: 172.21.0.3
+      SPRING_PROFILE_ACTIVE: dev
+      IPNETWORK_APP_BS: 177.23.0.3
     networks:
-      betting_network:
-        ipv4_address: 172.21.0.3
+      bs_network:
+        ipv4_address: 177.23.0.3
 
   seapostgres:
     container_name: seapostgres
     image: postgres:9.6
     restart: always
     ports:
-      - '5001:5432'
+      - '5431:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: seadb
     networks:
-      betting_network:
-        ipv4_address: 172.21.0.4
+      bs_network:
+        ipv4_address: 177.23.0.4
 
-  sea:
+  seapp:
     container_name: seaapp
-    image: pulawskk11/sportseventapi:latest
+    image: pulawskk/sportseventapi:0.0.1
     restart: always
     ports:
       - '8080:8080'
-      - '8888:8888'
     depends_on:
       - seapostgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://seapostgres:5432/seadb?useSSL=false
-      BETTING_SERVERIP: 172.21.0.3
+      BETTING_SERVERIP: 177.23.0.3
       BETTING_SERVERPORT: 8085
     networks:
-      betting_network:
-        ipv4_address: 172.21.0.5
-    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888 -jar myapp.jar
+      bs_network:
+        ipv4_address: 177.23.0.5
 
 networks:
-  betting_network:
+  bs_network:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.21.0.0/16
+        - subnet: 177.23.0.0/16

@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <docker.image.prefix>pulawskk11</docker.image.prefix>
+        <docker.image.prefix>pulawskk</docker.image.prefix>
         <docker.image.name>sportseventapi</docker.image.name>
         <swagger.version>2.9.2</swagger.version>
     </properties>

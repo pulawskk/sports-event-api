@@ -18,7 +18,7 @@ services:
 
   justseaapp:
     container_name: justseaapp
-    image: pulawskk11/sportseventapi:latest
+    image: pulawskk/sportseventapi:latest
     restart: always
     ports:
       - '8080:8080'
@@ -27,8 +27,8 @@ services:
       - justseapostgres
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://justseapostgres:5432/seadb?useSSL=false
-#      BETTING_SERVERIP: 173.21.0.3
-#      BETTING_SERVERPORT: 8085
+      BETTING_SERVERIP: 173.23.0.3
+      BETTING_SERVERPORT: 8083
     networks:
       justsea_network:
         ipv4_address: 173.21.0.5
